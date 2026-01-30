@@ -1,0 +1,8 @@
+{
+  "name": "K-Kitchen",
+  "description": "Global Cooking House: A platform for foreigners to discover authentic Korean cooking tools and ingredients through interactive, shoppable content.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
