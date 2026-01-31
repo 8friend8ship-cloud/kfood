@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
-import { Camera, Upload, X, Loader2, Sparkles, CheckCircle, User } from 'lucide-react';
+import { Camera, Upload, X, Loader2, Sparkles, CheckCircle, User, Search, Link as LinkIcon } from 'lucide-react';
 import { analyzeKitchenImage } from '../services/geminiService';
-import { DetectedItem, Post, Tag, Region } from '../types';
+import { DetectedItem, Post, Tag, Region, Author } from '../types';
 import { ProductTag } from './ProductTag';
+import { PRODUCT_CATALOG } from '../constants';
 
 interface UploadWizardProps {
   onClose: () => void;
@@ -15,6 +16,7 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onClose, onSave, reg
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [generatedTags, setGeneratedTags] = useState<Tag[]>([]);
   const [authorName, setAuthorName] = useState('');
+  const [activeTagId, setActiveTagId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,6 +60,41 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onClose, onSave, reg
         y = 30 + (Math.random() * 40);
       }
 
+      // -----------------------------------------------------------
+      // CATALOG MATCHING LOGIC (The Monetization Engine)
+      // If AI detects "Ramen", but we have "Samyang Ramen" in catalog,
+      // we prioritize the catalog item because it has the specific affiliate link.
+      // -----------------------------------------------------------
+      
+      const detectedNameLower = item.name.toLowerCase();
+      const detectedKeywordsLower = (item.searchKeyword || '').toLowerCase();
+
+      // Find best match in catalog
+      const matchedCatalogItem = PRODUCT_CATALOG.find(p => {
+        const catName = p.nameEn.toLowerCase();
+        // Check if names match loosely
+        const nameMatch = detectedNameLower.includes(catName) || catName.includes(detectedNameLower);
+        // Check if keywords match (e.g. "Samyang" in AI output)
+        const keywordMatch = p.nameEn.toLowerCase().split(' ').some(w => detectedKeywordsLower.includes(w) && w.length > 3);
+        
+        return nameMatch || keywordMatch;
+      });
+
+      if (matchedCatalogItem) {
+        // Use the curated catalog data (with affiliate links)
+        return {
+          id: `new-tag-${Date.now()}-${index}`,
+          x,
+          y,
+          product: {
+            ...matchedCatalogItem,
+            id: `new-prod-${Date.now()}-${index}`, // Unique ID for this instance
+          }
+        };
+      }
+
+      // If no match, use AI generated data (Generic Search Link)
+      const searchTerm = item.searchKeyword || item.name;
       return {
         id: `new-tag-${Date.now()}-${index}`,
         x,
@@ -66,15 +103,16 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onClose, onSave, reg
           id: `new-prod-${Date.now()}-${index}`,
           nameEn: item.name,
           nameKr: item.koreanName || item.name,
+          searchKeyword: searchTerm,
           description: item.description,
           priceUsd: 25.00 + (index * 5),
           priceKr: 29000 + (index * 5000),
           category: item.suggestedCategory,
           links: {
-            global: `https://amazon.com/s?k=${encodeURIComponent(item.name)}`,
+            global: `https://amazon.com/s?k=${encodeURIComponent(searchTerm)}`,
             kr: `https://coupang.com/np/search?q=${encodeURIComponent(item.koreanName || item.name)}`
           },
-          image: base64Full 
+          image: '' // This will trigger fallback
         }
       };
     });
@@ -83,13 +121,25 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onClose, onSave, reg
     setStep('results');
   };
 
+  const handleTagToggle = (tagId: string) => {
+    setActiveTagId(prevId => prevId === tagId ? null : tagId);
+  };
+
   const handleSave = () => {
     if (!imagePreview) return;
+
+    const newAuthor: Author = {
+      id: `user-${Date.now()}`,
+      name: authorName.trim() || 'Guest Chef',
+      title: 'K-Kitchen Newcomer',
+      followers: 0,
+      avatar: `https://i.pravatar.cc/150?u=${Date.now()}` // Random avatar for new user
+    };
 
     const newPost: Post = {
       id: `post-${Date.now()}`,
       title: 'My K-Kitchen Discovery',
-      author: authorName.trim() || 'Guest Chef',
+      author: newAuthor,
       imageUrl: imagePreview,
       description: `Look at these authentic Korean items! I found ${generatedTags.length} treasures.`,
       tags: generatedTags,
@@ -173,7 +223,13 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onClose, onSave, reg
                   
                   {/* Overlay Tags */}
                   {generatedTags.map((tag) => (
-                    <ProductTag key={tag.id} tag={tag} region={region} />
+                    <ProductTag 
+                      key={tag.id} 
+                      tag={tag} 
+                      region={region}
+                      isOpen={activeTagId === tag.id}
+                      onToggle={handleTagToggle} 
+                    />
                   ))}
                   
                   {/* Success Badge */}
@@ -206,10 +262,25 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onClose, onSave, reg
                         <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs shrink-0">
                           {idx + 1}
                         </div>
-                        <div>
-                          <div className="font-bold text-gray-900 text-sm">{tag.product.nameEn}</div>
-                          <div className="text-xs text-orange-600 font-medium">{tag.product.nameKr}</div>
-                          <div className="text-xs text-gray-400 mt-1">{tag.product.description}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                             <div className="font-bold text-gray-900 text-sm truncate">{tag.product.nameEn}</div>
+                             {tag.product.isBestseller && (
+                               <span className="bg-red-100 text-red-600 text-[10px] px-1.5 rounded-sm font-bold tracking-tight">BEST</span>
+                             )}
+                          </div>
+                          
+                          {/* Display the profit-driven keyword */}
+                          <div className="flex items-center gap-1 mt-0.5 text-orange-600 text-xs font-medium">
+                            {tag.product.links.global.includes('amzn.to') ? (
+                              <LinkIcon size={10} className="text-green-600" />
+                            ) : (
+                              <Search size={10} />
+                            )}
+                            <span className="truncate">{tag.product.searchKeyword || tag.product.nameEn}</span>
+                          </div>
+                          
+                          <div className="text-xs text-gray-400 mt-1 line-clamp-1">{tag.product.description}</div>
                         </div>
                       </div>
                     ))

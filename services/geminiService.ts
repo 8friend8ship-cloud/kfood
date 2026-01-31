@@ -17,6 +17,7 @@ export const analyzeKitchenImage = async (base64Image: string): Promise<Detected
       {
         name: "Mock Ttukbaegi",
         koreanName: "Ttukbaegi",
+        searchKeyword: "Korean Stone Bowl Earthenware Pot",
         description: "AI Disabled: Mock identification of an earthenware pot.",
         confidence: 0.9,
         suggestedCategory: 'tool',
@@ -27,19 +28,20 @@ export const analyzeKitchenImage = async (base64Image: string): Promise<Detected
 
   try {
     // Corrected Model: gemini-3-flash-preview supports responseSchema and vision tasks well.
-    // gemini-2.5-flash-image DOES NOT support responseSchema.
     const model = 'gemini-3-flash-preview'; 
     
     const prompt = `
-      You are an expert Korean Chef and Kitchenware specialist.
-      Analyze this cooking image. Detect distinct food items and kitchen tools.
+      You are an expert Korean Chef and E-commerce Specialist.
+      Analyze this cooking image to detect items that can be sold on Amazon US.
       
       INSTRUCTIONS:
       1. Identify items like: Ramyeon, Kimchi, Ttukbaegi (Pot), Grill Pan, Scissors, Tongs, Rice Bowl, Soju Glass.
-      2. For each item, estimate its 2D Bounding Box in the image.
-         - Coordinates must be 0-100 integers representing percentages of image dimensions.
-         - Format: [ymin, xmin, ymax, xmax]
-      3. Do NOT duplicate items. If there are multiple pieces of meat, group them as one "BBQ Meat" or select the central one.
+      2. For each item, provide a 'searchKeyword' OPTIMIZED for Amazon US sales.
+         - Bad: "Ramen"
+         - Good: "Buldak Spicy Chicken Ramen Variety Pack" (Bundles make more money)
+         - Bad: "Pot"
+         - Good: "Korean Earthenware Clay Pot with Tray" (Specific)
+      3. Estimate its 2D Bounding Box (ymin, xmin, ymax, xmax) in 0-100 scale.
       4. Provide a confidence score (0.0 to 1.0).
       
       OUTPUT FORMAT:
@@ -63,6 +65,7 @@ export const analyzeKitchenImage = async (base64Image: string): Promise<Detected
             properties: {
               name: { type: Type.STRING },
               koreanName: { type: Type.STRING },
+              searchKeyword: { type: Type.STRING, description: "Amazon optimized search term" },
               description: { type: Type.STRING },
               suggestedCategory: { type: Type.STRING, enum: ['tool', 'ingredient', 'tableware'] },
               boundingBox: {
@@ -84,8 +87,8 @@ export const analyzeKitchenImage = async (base64Image: string): Promise<Detected
     }
 
     const items = JSON.parse(jsonText) as DetectedItem[];
-    // Filter out low confidence items if any
-    return items.filter(item => (item.confidence || 0) > 0.6);
+    // Filter out low confidence items
+    return items.filter(item => (item.confidence || 0) > 0.5);
 
   } catch (error) {
     console.error("Gemini Vision Analysis Failed:", error);
