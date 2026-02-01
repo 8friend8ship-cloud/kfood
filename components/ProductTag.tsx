@@ -26,15 +26,27 @@ export const ProductTag: React.FC<ProductTagProps> = ({ tag, region, isOpen, onT
 
   // Social Media Link Generation
   const getSocialLinks = () => {
-    const searchKeyword = tag.product.nameEn.replace(/ /g, '+');
-    const hashtag = tag.product.nameEn.replace(/[^a-zA-Z0-9]/g, '');
+    // Prioritize the curated searchKeyword for better, cleaner search results.
+    const baseKeyword = tag.product.searchKeyword || tag.product.nameEn;
+
+    // Step 1: Clean the keyword to remove special characters (like parentheses) but keep spaces.
+    // FIX: Allow Unicode letters and numbers to support non-English product names.
+    const keywordClean = baseKeyword.replace(/[^\p{L}\p{N}\s]/gu, '').trim();
+
+    // Step 2: Create a URL-safe search query that uses '+' for spaces, matching YouTube's format.
+    const urlSearchQuery = keywordClean.replace(/\s+/g, '+');
+    
+    // [FIX] Create a more relevant and searchable Instagram hashtag from the first few words.
+    // The old method concatenated all words, creating an unsearchable tag.
+    const hashtag = keywordClean.toLowerCase().split(/\s+/).slice(0, 3).join('');
 
     return {
       youtube: tag.product.bestVideoUrl 
         ? tag.product.bestVideoUrl 
-        : `https://www.youtube.com/results?search_query=${searchKeyword}+Mukbang`,
+        : `https://www.youtube.com/results?search_query=${urlSearchQuery}+Mukbang`,
       instagram: `https://www.instagram.com/explore/tags/${hashtag}/`,
-      tiktok: `https://www.tiktok.com/tag/${hashtag}`
+      // [FIX] Changed TikTok to use '+' for spaces, matching YouTube's format and fixing the "weird text" issue.
+      tiktok: `https://www.tiktok.com/search?q=${urlSearchQuery}`
     };
   };
 

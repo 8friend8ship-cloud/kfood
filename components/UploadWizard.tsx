@@ -1,22 +1,24 @@
 import React, { useState, useRef } from 'react';
 import { Camera, Upload, X, Loader2, Sparkles, CheckCircle, User, Search, Link as LinkIcon } from 'lucide-react';
 import { analyzeKitchenImage } from '../services/geminiService';
-import { DetectedItem, Post, Tag, Region, Author } from '../types';
+import { Post, Tag, Region, Author } from '../types';
 import { ProductTag } from './ProductTag';
-import { PRODUCT_CATALOG } from '../constants';
+import { createTagsFromAnalysis } from '../utils/tagUtils';
+import { callProcessUserFoodPhoto } from '../services/firebaseService';
 
 interface UploadWizardProps {
   onClose: () => void;
-  onSave: (post: Post) => void;
+  onPostCreated: (post: Post) => void;
   region: Region;
 }
 
-export const UploadWizard: React.FC<UploadWizardProps> = ({ onClose, onSave, region }) => {
+export const UploadWizard: React.FC<UploadWizardProps> = ({ onClose, onPostCreated, region }) => {
   const [step, setStep] = useState<'upload' | 'analyzing' | 'results'>('upload');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [generatedTags, setGeneratedTags] = useState<Tag[]>([]);
   const [authorName, setAuthorName] = useState('');
   const [activeTagId, setActiveTagId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -35,87 +37,11 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onClose, onSave, reg
 
   const startAnalysis = async (base64Full: string) => {
     setStep('analyzing');
-    // Extract base64 data part
     const base64Data = base64Full.split(',')[1];
     const items = await analyzeKitchenImage(base64Data);
     
-    // Generate tags using bounding box data from Gemini
-    const tags: Tag[] = items.map((item, index) => {
-      let x = 50;
-      let y = 50;
-
-      // Calculate center position from bounding box [ymin, xmin, ymax, xmax]
-      // Ensure coordinates are within 0-100 range
-      if (item.boundingBox && item.boundingBox.length === 4) {
-        const [ymin, xmin, ymax, xmax] = item.boundingBox;
-        y = (ymin + ymax) / 2;
-        x = (xmin + xmax) / 2;
-        
-        // Clamp values just in case
-        x = Math.max(0, Math.min(100, x));
-        y = Math.max(0, Math.min(100, y));
-      } else {
-        // Fallback: Distribute slightly if no bbox
-        x = 30 + (Math.random() * 40);
-        y = 30 + (Math.random() * 40);
-      }
-
-      // -----------------------------------------------------------
-      // CATALOG MATCHING LOGIC (The Monetization Engine)
-      // If AI detects "Ramen", but we have "Samyang Ramen" in catalog,
-      // we prioritize the catalog item because it has the specific affiliate link.
-      // -----------------------------------------------------------
-      
-      const detectedNameLower = item.name.toLowerCase();
-      const detectedKeywordsLower = (item.searchKeyword || '').toLowerCase();
-
-      // Find best match in catalog
-      const matchedCatalogItem = PRODUCT_CATALOG.find(p => {
-        const catName = p.nameEn.toLowerCase();
-        // Check if names match loosely
-        const nameMatch = detectedNameLower.includes(catName) || catName.includes(detectedNameLower);
-        // Check if keywords match (e.g. "Samyang" in AI output)
-        const keywordMatch = p.nameEn.toLowerCase().split(' ').some(w => detectedKeywordsLower.includes(w) && w.length > 3);
-        
-        return nameMatch || keywordMatch;
-      });
-
-      if (matchedCatalogItem) {
-        // Use the curated catalog data (with affiliate links)
-        return {
-          id: `new-tag-${Date.now()}-${index}`,
-          x,
-          y,
-          product: {
-            ...matchedCatalogItem,
-            id: `new-prod-${Date.now()}-${index}`, // Unique ID for this instance
-          }
-        };
-      }
-
-      // If no match, use AI generated data (Generic Search Link)
-      const searchTerm = item.searchKeyword || item.name;
-      return {
-        id: `new-tag-${Date.now()}-${index}`,
-        x,
-        y,
-        product: {
-          id: `new-prod-${Date.now()}-${index}`,
-          nameEn: item.name,
-          nameKr: item.koreanName || item.name,
-          searchKeyword: searchTerm,
-          description: item.description,
-          priceUsd: 25.00 + (index * 5),
-          priceKr: 29000 + (index * 5000),
-          category: item.suggestedCategory,
-          links: {
-            global: `https://amazon.com/s?k=${encodeURIComponent(searchTerm)}`,
-            kr: `https://coupang.com/np/search?q=${encodeURIComponent(item.koreanName || item.name)}`
-          },
-          image: '' // This will trigger fallback
-        }
-      };
-    });
+    // Use the new centralized utility to generate tags
+    const tags = createTagsFromAnalysis(items);
 
     setGeneratedTags(tags);
     setStep('results');
@@ -125,28 +51,28 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onClose, onSave, reg
     setActiveTagId(prevId => prevId === tagId ? null : tagId);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!imagePreview) return;
+    setIsSaving(true);
+    
+    const authorNameForPost = authorName.trim() || 'Guest Chef';
+    const postTitle = 'My K-Kitchen Discovery';
+    const postDescription = `Look at what I found! I used the K-Kitchen AI scanner to identify ${generatedTags.length} authentic Korean items in my photo. Check out the tags to see what they are!`;
 
-    const newAuthor: Author = {
-      id: `user-${Date.now()}`,
-      name: authorName.trim() || 'Guest Chef',
-      title: 'K-Kitchen Newcomer',
-      followers: 0,
-      avatar: `https://i.pravatar.cc/150?u=${Date.now()}` // Random avatar for new user
-    };
-
-    const newPost: Post = {
-      id: `post-${Date.now()}`,
-      title: 'My K-Kitchen Discovery',
-      author: newAuthor,
-      imageUrl: imagePreview,
-      description: `Look at these authentic Korean items! I found ${generatedTags.length} treasures.`,
-      tags: generatedTags,
-      likes: 0
-    };
-
-    onSave(newPost);
+    try {
+        const newPost = await callProcessUserFoodPhoto({
+            base64Image: imagePreview,
+            authorName: authorNameForPost,
+            title: postTitle,
+            description: postDescription,
+        });
+        onPostCreated(newPost);
+    } catch (error) {
+        console.error("Failed to process and save post:", error);
+        alert("There was an error saving your post. Please ensure you are logged in and try again.");
+    } finally {
+        setIsSaving(false);
+    }
   };
 
   return (
@@ -211,10 +137,12 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onClose, onSave, reg
               {/* Left: Interactive Image */}
               <div className="w-full md:w-2/3 bg-black flex items-center justify-center overflow-hidden p-4">
                 {/* 
-                  Wrapper div to ensure tags are positioned relative to the IMAGE itself, 
-                  not the black background container. 
+                  [FIX] The wrapper div now uses `inline-block`. This forces the div to shrink-wrap
+                  the `img` element, ensuring its dimensions perfectly match the visible image.
+                  This makes the percentage-based coordinates for the absolute-positioned tags
+                  accurate, regardless of the image's aspect ratio.
                 */}
-                <div className="relative inline-block max-w-full max-h-full">
+                <div className="relative inline-block">
                   <img 
                     src={imagePreview} 
                     alt="Analyzed" 
@@ -307,10 +235,11 @@ export const UploadWizard: React.FC<UploadWizardProps> = ({ onClose, onSave, reg
 
                   <button 
                     onClick={handleSave} 
-                    className="w-full py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-colors shadow-lg flex items-center justify-center gap-2"
+                    disabled={isSaving}
+                    className="w-full py-3 bg-gray-900 text-white font-bold rounded-xl hover:bg-black transition-colors shadow-lg flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
-                    <Upload size={18} />
-                    Post to Community
+                    {isSaving ? <Loader2 size={18} className="animate-spin" /> : <Upload size={18} />}
+                    {isSaving ? 'Processing & Posting...' : 'Post to Community'}
                   </button>
                 </div>
               </div>

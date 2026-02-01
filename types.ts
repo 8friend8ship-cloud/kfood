@@ -1,3 +1,4 @@
+import { Timestamp } from 'firebase/firestore';
 
 export interface Author {
   id: string;
@@ -7,6 +8,66 @@ export interface Author {
   avatar: string;
   country?: string;
   badge?: string;
+  timezone?: string; // e.g. "America/New_York"
+}
+
+export interface Cashout {
+  amount: number;
+  status: 'pending' | 'completed' | 'failed';
+}
+
+export interface BonusCreditBatch {
+  source: 'purchase' | 'daily_reward' | 'promo';
+  amount: number;
+  expires_at: Timestamp;
+}
+
+export interface CreditExpirationLog {
+  amount: number;
+  expired_at: Timestamp;
+}
+
+export interface RechargeLog {
+  krw: number;
+  usd: number;
+  credits: number;
+  rate: number;
+  toss_order_id: string;
+  recharged_at: Timestamp;
+}
+
+export interface Creator {
+  uid: string;
+  tracking_id: string;
+  referral_link: string;
+  spendable_credits: number; // Cashable credits from purchases
+  bonus_credits?: number; // Total non-cashable credits
+  bonus_credits_expiry?: Timestamp; // Earliest expiry date for any bonus credits
+  bonus_credits_breakdown?: BonusCreditBatch[]; // Detailed breakdown of bonus credits
+  last_daily_claim?: Timestamp; // Timestamp for daily reward cooldown
+  phone_payout?: {
+    phone_number: string;
+    verified: boolean;
+    country: string; // The creator's country for payout optimization
+    micro_payment_id?: string; // Required for KR phone refunds
+    last_payout?: number; // in KRW
+    payout_count?: number;
+  };
+  cashouts?: Cashout[];
+  created_at: Timestamp;
+  auto_recharge?: {
+    enabled: boolean;
+    amount: number;
+    threshold: number;
+  };
+  expired_log?: CreditExpirationLog[]; // Logs recent credit expirations
+  notification_email?: string; // New required field for notifications
+  notification_settings?: {
+    email_30_day_warning?: boolean; // D-30: "30일 남음 + 홍보" 메일
+    push_7_day_warning?: boolean;   // D-7: 푸시 "7일 남음!"
+    inactivity_warning?: boolean; // 6개월 비활동 경고
+  };
+  recharge_history?: RechargeLog[];
 }
 
 export interface Product {
@@ -17,7 +78,7 @@ export interface Product {
   description: string;
   priceUsd: number;
   priceKr: number; // Added for domestic pricing
-  category: 'tool' | 'ingredient' | 'tableware' | 'snack' | 'sauce' | 'kit';
+  category: 'tool' | 'ingredient' | 'tableware' | 'snack' | 'sauce' | 'kit' | 'drink';
   links: {
     global: string; // Amazon/eBay link
     kr: string; // Coupang/Naver link
@@ -42,18 +103,24 @@ export interface RecipeEssential {
 }
 
 export interface Post {
-  id: string;
+  id:string;
   title: string;
   author: Author;
   imageUrl: string;
   description: string;
   tags: Tag[];
   likes: number;
+  difficulty?: 'Easy' | 'Medium' | 'Hard';
   recipeEssentials?: RecipeEssential[]; // Hidden ingredients list
   // 4D Sensory Experience
   videoUrl?: string; // Loop video (WebM/MP4)
   audioUrl?: string; // ASMR Sound (MP3)
   bestVideoUrl?: string; // Manual override for specific Mukbang/Recipe video
+  createdAt?: number; // Timestamp for "Just Now" feature
+  isRecipe?: boolean; // Flag for creative recipe posts
+  isCinemagraph?: boolean; // Flag for fake video posts
+  cinemagraphEffect?: 'steam'; // Effect type for fake video
+  isBoosted?: boolean; // Flag for promoted posts
 }
 
 export enum Region {

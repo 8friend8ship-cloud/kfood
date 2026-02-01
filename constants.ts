@@ -1,69 +1,112 @@
-import { Post, Product, Theme, Author, Tag } from './types';
+import { Product, Theme, Author } from './types';
 
 // Collection: Themes
 export const THEMES: Theme[] = [
   {
     id: 'all',
     title: 'All',
-    icon: '🍽️',
+    icon: '🇰🇷',
     description: 'Everything K-Kitchen',
     keywords: [],
     gradient: 'from-gray-800 to-gray-900'
   },
   {
-    id: 'theme_noodle_01',
-    title: 'Ramyun Heaven',
-    icon: '🍜',
-    description: 'Slurp the best noodles',
-    keywords: ['Ramen', 'Noodle', 'Samyang', 'Buldak', 'Pot', 'Shin', 'Neoguri', 'Chapagetti'],
+    id: 'theme_carbs_01',
+    title: 'Rice & Noodles',
+    icon: '🍚',
+    description: 'The comforting foundation',
+    keywords: ['Rice', 'Noodle', 'Ramen', 'Bibimbap', 'Japchae', 'Gimbap', 'Bokkeumbap'],
     gradient: 'from-yellow-500 to-orange-400'
   },
   {
-    id: 'theme_bbq_01',
-    title: 'Home K-BBQ',
+    id: 'theme_stew_01',
+    title: 'Soups & Stews',
+    icon: '🥘',
+    description: 'Rich, bubbling comfort',
+    keywords: ['Pot', 'Ttukbaegi', 'Stew', 'Soup', 'Kimchi', 'Jjigae', 'Doenjang', 'Samgyetang'],
+    gradient: 'from-emerald-600 to-teal-600'
+  },
+  {
+    id: 'theme_main_01',
+    title: 'Main Dishes',
     icon: '🥩',
-    description: 'Grill like a pro at home',
-    keywords: ['Grill', 'BBQ', 'Scissors', 'Pork', 'Ssamjang', 'Galbi', 'Bulgogi', 'Lid'],
+    description: 'Grilled, braised & stir-fried',
+    keywords: ['Grill', 'BBQ', 'Pork', 'Galbi', 'Bulgogi', 'Jeyuk', 'Bokkeum'],
     gradient: 'from-orange-500 to-amber-500'
   },
   {
-    id: 'theme_snack_01',
-    title: 'K-Snack Bar',
-    icon: '🍪',
-    description: 'Sweet & Salty Treats',
-    keywords: ['Snack', 'Chip', 'Cookie', 'Choco', 'Jelly', 'Drink', 'Milk'],
+    id: 'theme_street_01',
+    title: 'Street Food',
+    icon: '🍢',
+    description: 'Trendy & quick bites',
+    keywords: ['Tteokbokki', 'Hotteok', 'Pancake', 'Jeon', 'Snack', 'Gimbap'],
     gradient: 'from-pink-400 to-rose-400'
   },
   {
-    id: 'theme_sauce_01',
-    title: 'Sauce Pantry',
-    icon: '🌶️',
-    description: 'The Soul of Korean Taste',
-    keywords: ['Gochujang', 'Doenjang', 'Soy', 'Sauce', 'Oil', 'Powder', 'Paste'],
-    gradient: 'from-red-700 to-red-900'
+    id: 'theme_banchan_01',
+    title: 'Side Dishes',
+    icon: '🥬',
+    description: 'The soul of a Korean meal',
+    keywords: ['Banchan', 'Kimchi', 'Side Dish', 'Steamed Egg', 'Anchovy'],
+    gradient: 'from-blue-500 to-indigo-500'
   },
   {
-    id: 'theme_stew_01',
-    title: 'Cozy Stews',
-    icon: '🥘',
-    description: 'Comfort food for rainy days',
-    keywords: ['Pot', 'Ttukbaegi', 'Stew', 'Soup', 'Kimchi'],
-    gradient: 'from-emerald-600 to-teal-600'
+    id: 'theme_dessert_01',
+    title: 'Dessert & Drinks',
+    icon: '🍧',
+    description: 'Sweet treats & sips',
+    keywords: ['Dessert', 'Bingsu', 'Drink', 'Makgeolli', 'Soju', 'Milk'],
+    gradient: 'from-purple-400 to-violet-500'
   }
 ];
 
 // Helper to generate Amazon Search Link
-const amz = (keyword: string) => `https://amazon.com/s?k=${encodeURIComponent(keyword)}`;
-const coupang = (keyword: string) => `https://coupang.com/np/search?q=${encodeURIComponent(keyword)}`;
+export const amz = (keyword: string) => `https://amazon.com/s?k=${encodeURIComponent(keyword)}`;
+export const coupang = (keyword: string) => `https://coupang.com/np/search?q=${encodeURIComponent(keyword)}`;
 
 // GHOST PROTOCOL: Virtual Influencers (Personas)
 export const GHOST_AUTHORS: Author[] = [
-    { id: "user_mama_kim", name: "Mama Kim", title: "Home Cook Master", followers: 12500, avatar: "https://i.pravatar.cc/150?u=mama" },
-    { id: "user_seoul_eats", name: "Seoul Eats", title: "K-Food Hunter", followers: 8900, avatar: "https://i.pravatar.cc/150?u=seoul" },
-    { id: "user_chef_lee", name: "Chef Lee", title: "Professional Chef", followers: 45000, avatar: "https://i.pravatar.cc/150?u=chef" },
-    { id: "user_spicy_girl", name: "Spicy Girl", title: "Mukbang Streamer", followers: 23200, avatar: "https://i.pravatar.cc/150?u=spicy" },
-    { id: "user_camping_dad", name: "Camping Dad", title: "Outdoor Cooking", followers: 5600, avatar: "https://i.pravatar.cc/150?u=camp" }
+    { id: "user_mama_kim", name: "Mama Kim", title: "Home Cook Master", followers: 12500, avatar: "https://i.pravatar.cc/150?u=mama", country: "Korea", badge: "Authentic Master", timezone: "Asia/Seoul" },
+    { id: "user_seoul_eats", name: "Seoul Eats", title: "K-Food Hunter", followers: 8900, avatar: "https://i.pravatar.cc/150?u=seoul", country: "Korea", badge: "Trend Setter", timezone: "Asia/Seoul" },
+    { id: "user_chef_lee", name: "Chef Lee", title: "Professional Chef", followers: 45000, avatar: "https://i.pravatar.cc/150?u=chef", country: "USA", badge: "Gourmet Chef", timezone: "America/New_York" },
+    { id: "user_spicy_girl", name: "Spicy Girl", title: "Mukbang Streamer", followers: 23200, avatar: "https://i.pravatar.cc/150?u=spicy", country: "Vietnam", badge: "Spicy Lover", timezone: "Asia/Ho_Chi_Minh" },
+    { id: "user_camping_dad", name: "Camping Dad", title: "Outdoor Cooking", followers: 5600, avatar: "https://i.pravatar.cc/150?u=camp", country: "France", badge: "Wild Camping", timezone: "Europe/Paris" }
 ];
+
+// [NEW] Generate a larger pool of personas for the scheduler
+function generateGlobalPersonas(): Author[] {
+  const generatedAuthors: Author[] = [];
+  const nations = [
+      { name: "USA", timezone: "America/New_York", names: ["Mike", "Sarah", "John", "Emily"], badge: "Food Vlogger" },
+      { name: "UK", timezone: "Europe/London", names: ["Harry", "Olivia", "George", "Amelia"], badge: "Home Chef" },
+      { name: "Canada", timezone: "America/Toronto", names: ["Liam", "Emma", "Noah", "Charlotte"], badge: "Outdoor Cook" },
+      { name: "Australia", timezone: "Australia/Sydney", names: ["Oliver", "Mia", "Jack", "Isla"], badge: "Grill Master" },
+      { name: "Japan", timezone: "Asia/Tokyo", names: ["Ken", "Yui", "Hiro", "Sakura"], badge: "Minimalist Eater" },
+      { name: "Germany", timezone: "Europe/Berlin", names: ["Ben", "Hanna", "Paul", "Clara"], badge: "Recipe Explorer" },
+      { name: "Brazil", timezone: "America/Sao_Paulo", names: ["Miguel", "Sophia", "Arthur", "Alice"], badge: "Fusion Foodie" },
+      { name: "Mexico", timezone: "America/Mexico_City", names: ["Santiago", "Maria", "Mateo", "Camila"], badge: "Spicy Challenger" },
+      { name: "India", timezone: "Asia/Kolkata", names: ["Aarav", "Saanvi", "Vivaan", "Diya"], badge: "Spice Expert" },
+  ];
+
+  let idCounter = 0;
+  for (const nation of nations) {
+      for (let i = 0; i < 10; i++) { // 10 personas per nation
+          const name = `${nation.names[Math.floor(Math.random() * nation.names.length)]}${Math.floor(Math.random() * 900) + 100}`;
+          generatedAuthors.push({
+              id: `gen_user_${idCounter++}`,
+              name: name,
+              title: `${nation.name} K-Food Lover`,
+              followers: Math.floor(Math.random() * 5000) + 200,
+              avatar: `https://i.pravatar.cc/150?u=${name}`, // Still uses pravatar for seed, but will be replaced by AI avatar
+              country: nation.name,
+              badge: nation.badge,
+              timezone: nation.timezone
+          });
+      }
+  }
+  return generatedAuthors;
+}
+export const ALL_PERSONAS: Author[] = [...GHOST_AUTHORS, ...generateGlobalPersonas()];
 
 
 // Catalog of "Authentic" K-Items
@@ -166,18 +209,6 @@ export const PRODUCT_CATALOG: Product[] = [
     bestVideoUrl: "https://www.youtube.com/results?search_query=Fire+Noodle+Challenge"
   },
   {
-    id: 'ramyun_carbo',
-    nameEn: 'Buldak Carbonara (Pink)',
-    nameKr: '까르보 불닭',
-    searchKeyword: 'Samyang Buldak Carbonara Ramen',
-    description: 'Creamy and spicy. The perfect balance for those who want heat with flavor.',
-    priceUsd: 7.50,
-    priceKr: 4500,
-    category: 'ingredient',
-    links: { global: amz('Samyang Buldak Carbonara'), kr: coupang('까르보불닭') },
-    image: 'https://images.unsplash.com/photo-1553163147-622ab57be0c7?auto=format&fit=crop&q=80&w=600'
-  },
-  {
     id: 'ramyun_chapagetti',
     nameEn: 'Chapagetti (Black Bean)',
     nameKr: '짜파게티',
@@ -190,55 +221,32 @@ export const PRODUCT_CATALOG: Product[] = [
     image: 'https://images.unsplash.com/photo-1629851608240-a10c2c2f483c?auto=format&fit=crop&q=80&w=600'
   },
   {
-    id: 'ramyun_neoguri',
-    nameEn: 'Neoguri (Seafood Udon)',
-    nameKr: '너구리',
-    searchKeyword: 'Nongshim Neoguri Spicy Seafood Noodle',
-    description: 'Chunky udon-style noodles in spicy seafood broth. Features a real piece of kelp.',
-    priceUsd: 6.50,
-    priceKr: 3800,
+    id: 'ingredient_glass_noodle',
+    nameEn: 'Korean Glass Noodles (Dangmyeon)',
+    nameKr: '당면',
+    searchKeyword: 'Korean Sweet Potato Starch Noodles Dangmyeon',
+    description: 'Chewy and clear noodles made from sweet potato starch, essential for Japchae.',
+    priceUsd: 8.99,
+    priceKr: 5000,
     category: 'ingredient',
-    links: { global: amz('Nongshim Neoguri'), kr: coupang('너구리') },
-    image: 'https://images.unsplash.com/photo-1552611052-33e04de081de?auto=format&fit=crop&q=80&w=600'
-  },
-  {
-    id: 'ramyun_jin_mild',
-    nameEn: 'Jin Ramen (Mild)',
-    nameKr: '진라면 순한맛',
-    searchKeyword: 'Ottogi Jin Ramen Mild',
-    description: 'A gentle, savory broth loaded with vegetables. Great for kids or non-spicy eaters.',
-    priceUsd: 5.99,
-    priceKr: 3000,
-    category: 'ingredient',
-    links: { global: amz('Ottogi Jin Ramen Mild'), kr: coupang('진라면 순한맛') },
-    image: 'https://images.unsplash.com/photo-1623961990059-28356e22bc76?auto=format&fit=crop&q=80&w=600'
-  },
-  {
-    id: 'ramyun_bibim',
-    nameEn: 'Paldo Bibim Men (Cold)',
-    nameKr: '팔도 비빔면',
-    searchKeyword: 'Paldo Bibim Men Cold Noodle',
-    description: 'Refreshing cold noodles with sweet and spicy apple chili paste. Summer favorite.',
-    priceUsd: 6.50,
-    priceKr: 3500,
-    category: 'ingredient',
-    links: { global: amz('Paldo Bibim Men'), kr: coupang('팔도비빔면') },
-    image: 'https://images.unsplash.com/photo-1625243144883-7c3a1d957d54?auto=format&fit=crop&q=80&w=600'
-  },
-  {
-    id: 'ramyun_gomtang',
-    nameEn: 'Gomtang (Beef Bone)',
-    nameKr: '사리곰탕',
-    searchKeyword: 'Nongshim Gomtang Beef Bone Soup',
-    description: 'Non-spicy, milky white beef bone broth. Rich, savory, and comforting.',
-    priceUsd: 6.50,
-    priceKr: 3500,
-    category: 'ingredient',
-    links: { global: amz('Nongshim Gomtang'), kr: coupang('사리곰탕') },
-    image: 'https://images.unsplash.com/photo-1596450504847-5264b9bb9697?auto=format&fit=crop&q=80&w=600'
+    links: { global: amz('Korean Glass Noodles'), kr: coupang('당면') },
+    image: 'https://images.unsplash.com/photo-1597131728235-db14c2772a5a?auto=format&fit=crop&q=80&w=600'
   },
   
+  
   // --- K-INGREDIENTS (Fresh & Basic) ---
+  {
+    id: 'ingredient_kimchi_napa',
+    nameEn: 'Napa Cabbage Kimchi',
+    nameKr: '배추김치',
+    searchKeyword: 'Jongga Mat Kimchi Sliced Napa Cabbage Kimchi',
+    description: 'The iconic, spicy fermented napa cabbage that is the heart of Korean cuisine.',
+    priceUsd: 14.99,
+    priceKr: 12000,
+    category: 'ingredient',
+    links: { global: amz('Napa Cabbage Kimchi'), kr: coupang('배추김치') },
+    image: 'https://images.unsplash.com/photo-1583224996421-59b73b2246b3?auto=format&fit=crop&q=80&w=600'
+  },
   {
     id: 'ingredient_egg_01',
     nameEn: 'Fresh Grade A Large Eggs',
@@ -264,16 +272,124 @@ export const PRODUCT_CATALOG: Product[] = [
     image: 'https://images.unsplash.com/photo-1588168333986-5078d3ae3976?auto=format&fit=crop&q=80&w=600'
   },
   {
+    id: 'ingredient_beef_short_rib',
+    nameEn: 'Beef Short Ribs (for Jjim)',
+    nameKr: '소갈비 (찜용)',
+    searchKeyword: 'Bone-in Beef Short Ribs for Braising',
+    description: 'Marbled, tender beef short ribs, perfect for slow-braising into luxurious Galbi-jjim.',
+    priceUsd: 29.99,
+    priceKr: 35000,
+    category: 'ingredient',
+    links: { global: amz('Beef Short Ribs'), kr: coupang('찜갈비') },
+    image: 'https://images.unsplash.com/photo-1615934639350-d33555a6d532?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'ingredient_pork_belly',
+    nameEn: 'Pork Belly Block (for Suyuk)',
+    nameKr: '통삼겹살 (수육용)',
+    searchKeyword: 'Pork Belly Slab for Roasting',
+    description: 'A thick cut of pork belly, perfect for slow-boiling to create tender Suyuk.',
+    priceUsd: 12.99,
+    priceKr: 18000,
+    category: 'ingredient',
+    links: { global: amz('Pork Belly Slab'), kr: coupang('통삼겹살') },
+    image: 'https://images.unsplash.com/photo-1615934639350-d33555a6d532?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'ingredient_chicken_whole',
+    nameEn: 'Small Whole Chicken (for Samgyetang)',
+    nameKr: '영계 (삼계탕용)',
+    searchKeyword: 'Cornish Hen or Small Young Chicken',
+    description: 'A small, tender chicken, ideal for stuffing with rice and ginseng for Samgyetang.',
+    priceUsd: 9.99,
+    priceKr: 8000,
+    category: 'ingredient',
+    links: { global: amz('Cornish Hen'), kr: coupang('삼계탕용 닭') },
+    image: 'https://images.unsplash.com/photo-1606318288834-612d3b643da3?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'ingredient_ginseng',
+    nameEn: 'Fresh Ginseng',
+    nameKr: '수삼',
+    searchKeyword: 'Fresh Korean Ginseng Root for Soup',
+    description: 'An essential medicinal root that gives Samgyetang its unique, healthy flavor.',
+    priceUsd: 19.99,
+    priceKr: 15000,
+    category: 'ingredient',
+    links: { global: amz('Fresh Ginseng'), kr: coupang('수삼') },
+    image: 'https://images.unsplash.com/photo-1598044991738-9cb93e25b340?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'ingredient_squid',
+    nameEn: 'Fresh Squid (for Bokkeum)',
+    nameKr: '생물 오징어',
+    searchKeyword: 'Fresh Squid for Cooking Stir Fry',
+    description: 'Tender and chewy squid, perfect for making the classic spicy Ojingeo-bokkeum.',
+    priceUsd: 14.99,
+    priceKr: 15000,
+    category: 'ingredient',
+    links: { global: amz('Fresh Squid'), kr: coupang('생물 오징어') },
+    image: 'https://images.unsplash.com/photo-1599119293488-346762332f17?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'ingredient_dried_anchovy',
+    nameEn: 'Dried Anchovies (for Banchan)',
+    nameKr: '마른 멸치',
+    searchKeyword: 'Dried Anchovies for Soup Stock and Side Dish',
+    description: 'Small dried anchovies, perfect for making the sweet and savory side dish Myeolchi-bokkeum.',
+    priceUsd: 11.99,
+    priceKr: 9000,
+    category: 'ingredient',
+    links: { global: amz('Dried Anchovies'), kr: coupang('마른 멸치') },
+    image: 'https://images.unsplash.com/photo-1574902120229-923c5304a115?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'ingredient_gimbap_seaweed',
+    nameEn: 'Roasted Seaweed for Gimbap',
+    nameKr: '김밥용 김',
+    searchKeyword: 'Roasted Seaweed Sheets for Gimbap Nori',
+    description: 'Large, durable sheets of roasted seaweed, specifically for making Korean Gimbap rolls.',
+    priceUsd: 6.99,
+    priceKr: 4000,
+    category: 'ingredient',
+    links: { global: amz('Gimbap Nori'), kr: coupang('김밥김') },
+    image: 'https://images.unsplash.com/photo-1606923829571-0f26e64f38ad?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'ingredient_pickled_radish',
+    nameEn: 'Yellow Pickled Radish (Danmuji)',
+    nameKr: '단무지',
+    searchKeyword: 'Whole Yellow Pickled Radish for Gimbap',
+    description: 'Crispy, sweet, and tangy pickled radish that is an essential ingredient for Gimbap.',
+    priceUsd: 7.99,
+    priceKr: 3500,
+    category: 'ingredient',
+    links: { global: amz('Danmuji'), kr: coupang('단무지') },
+    image: 'https://plus.unsplash.com/premium_photo-1664648005643-9ada27e76e5d?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'ingredient_red_bean_sweet',
+    nameEn: 'Sweetened Red Bean Paste',
+    nameKr: '단팥',
+    searchKeyword: 'Canned Sweetened Red Bean Paste Adzuki',
+    description: 'Sweet, smooth red bean paste, the classic topping for Korean shaved ice (Bingsu).',
+    priceUsd: 5.99,
+    priceKr: 3000,
+    category: 'ingredient',
+    links: { global: amz('Sweet Red Bean Paste'), kr: coupang('단팥') },
+    image: 'https://images.unsplash.com/photo-1592314224733-529a5a78f219?auto=format&fit=crop&q=80&w=600'
+  },
+  {
     id: 'ingredient_garlic_minced',
     nameEn: 'Minced Garlic',
     nameKr: '다진 마늘',
-    searchKeyword: 'Minced Garlic Jar',
-    description: 'The foundation of Korean cuisine. Use generously.',
-    priceUsd: 4.99,
-    priceKr: 3000,
+    searchKeyword: 'Minced Garlic in Water Jar',
+    description: 'The absolute soul of Korean cooking. Adds a pungent, aromatic flavor essential for nearly every dish.',
+    priceUsd: 6.99,
+    priceKr: 4000,
     category: 'ingredient',
-    links: { global: amz('Minced Garlic'), kr: coupang('다진 마늘') },
-    image: 'https://images.unsplash.com/photo-1615477381421-12c82d8c9096?auto=format&fit=crop&q=80&w=600'
+    links: { global: amz('Minced Garlic'), kr: coupang('다진마늘') },
+    image: 'https://images.unsplash.com/photo-1618371302138-34a621e7a55d?auto=format&fit=crop&q=80&w=600'
   },
   
   // --- K-FRESH (Vegetables & Toppings) ---
@@ -288,42 +404,6 @@ export const PRODUCT_CATALOG: Product[] = [
     category: 'ingredient',
     links: { global: amz('Fresh Green Onions'), kr: coupang('대파') },
     image: 'https://images.unsplash.com/photo-1618888265008-591574a62174?w=400&q=80' // DATA FIX
-  },
-  {
-    id: 'veg_bokchoy',
-    nameEn: 'Fresh Bok Choy (Baby)',
-    nameKr: '청경채',
-    searchKeyword: 'Fresh Bok Choy',
-    description: 'Crunchy and juicy. Perfect for adding texture to spicy noodle soups.',
-    priceUsd: 3.99,
-    priceKr: 2000,
-    category: 'ingredient',
-    links: { global: amz('Fresh Bok Choy'), kr: coupang('청경채') },
-    image: 'https://images.unsplash.com/photo-1528796850122-96535d4dc9b8?auto=format&fit=crop&q=80&w=600'
-  },
-  {
-    id: 'veg_cilantro',
-    nameEn: 'Fresh Cilantro (Coriander)',
-    nameKr: '고수',
-    searchKeyword: 'Fresh Cilantro Bunch',
-    description: 'A polarizing but loved aromatic. Great for fusion tacos or spicy soups.',
-    priceUsd: 1.99,
-    priceKr: 3000,
-    category: 'ingredient',
-    links: { global: amz('Fresh Cilantro Bunch'), kr: coupang('고수') },
-    image: 'https://images.unsplash.com/photo-1627995166649-165c27632663?auto=format&fit=crop&q=80&w=600'
-  },
-  {
-    id: 'topping_corn',
-    nameEn: 'Sweet Corn Kernels (Canned)',
-    nameKr: '스위트 콘',
-    searchKeyword: 'Whole Kernel Sweet Corn Canned',
-    description: 'Sweet and popping texture. The secret topping for "Bul-dak" noodles to cut the spice.',
-    priceUsd: 1.50,
-    priceKr: 1500,
-    category: 'ingredient',
-    links: { global: amz('Whole Kernel Sweet Corn Canned'), kr: coupang('스위트 콘') },
-    image: 'https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&q=80&w=600'
   },
 
   // --- K-TOOLS ---
@@ -352,140 +432,68 @@ export const PRODUCT_CATALOG: Product[] = [
     image: 'https://images.unsplash.com/photo-1584269986326-681b49826352?q=80&w=600&auto=format&fit=crop'
   },
   {
-    id: 'tool_makgeolli_kettle',
-    nameEn: 'Makgeolli Kettle Set',
-    nameKr: '막걸리 주전자',
-    searchKeyword: 'Korean Makgeolli Kettle and Bowl Set',
-    description: 'Yellow aluminum kettle set for serving Rice Wine (Makgeolli).',
-    priceUsd: 19.99,
-    priceKr: 8000,
+    id: 'tool_bingsu_machine',
+    nameEn: 'Electric Snow Ice Shaver',
+    nameKr: '빙수기',
+    searchKeyword: 'Electric Ice Shaver Machine for Bingsu',
+    description: 'Creates fluffy, snow-like ice, essential for authentic Korean Bingsu.',
+    priceUsd: 49.99,
+    priceKr: 45000,
     category: 'tool',
-    links: { global: amz('Makgeolli Kettle Set'), kr: coupang('막걸리 주전자') },
-    image: 'https://images.unsplash.com/photo-1616259024097-47b853545b73?auto=format&fit=crop&q=80&w=600'
+    links: { global: amz('Electric Ice Shaver'), kr: coupang('빙수기') },
+    image: 'https://images.unsplash.com/photo-1567197992794-d1a1052431ba?auto=format&fit=crop&q=80&w=600'
   },
   {
     id: 'tool_scissors',
-    nameEn: 'BBQ Meat Scissors',
+    nameEn: 'Korean BBQ Meat Scissors',
     nameKr: '고기 가위',
-    searchKeyword: 'Korean BBQ Meat Scissors Heavy Duty',
-    description: 'Essential for K-BBQ. Cuts through thick pork belly and galbi effortlessly.',
-    priceUsd: 12.00,
-    priceKr: 5500,
+    searchKeyword: 'Heavy Duty Kitchen Shears for Meat',
+    description: 'The authentic way to cut grilled meat and kimchi right at the table. A must-have for K-BBQ.',
+    priceUsd: 12.99,
+    priceKr: 9900,
     category: 'tool',
     links: { global: amz('Korean BBQ Scissors'), kr: coupang('고기 가위') },
-    image: "https://images.unsplash.com/photo-1595475253503-6f4174352163?w=600&q=80",
-  },
-  {
-    id: 'tool_tongs',
-    nameEn: 'Self-Standing Tongs',
-    nameKr: '집게',
-    searchKeyword: 'Korean BBQ Tongs Stainless Steel Self Standing',
-    description: 'Hygienic tongs that stand up on their own. Keep your table clean while grilling.',
-    priceUsd: 9.99,
-    priceKr: 3000,
-    category: 'tool',
-    links: { global: amz('Korean BBQ Tongs'), kr: coupang('고기 집게') },
-    image: 'https://images.unsplash.com/photo-1594967396068-45cb1d310123?auto=format&fit=crop&q=80&w=600'
+    image: 'https://images.unsplash.com/photo-1559519448-644a4b4b2c14?auto=format&fit=crop&q=80&w=600'
   },
   {
     id: 'tool_rice_bowl',
-    nameEn: 'Stainless Rice Bowl',
-    nameKr: '공기밥 그릇',
+    nameEn: 'Korean Rice Bowl with Lid',
+    nameKr: '밥그릇',
     searchKeyword: 'Korean Stainless Steel Rice Bowl with Lid',
-    description: 'Classic steel bowl with lid. Keeps rice warm and moist.',
+    description: 'The traditional stainless steel bowl that keeps your rice warm throughout the meal.',
     priceUsd: 11.99,
-    priceKr: 3000,
-    category: 'tool',
-    links: { global: amz('Korean Rice Bowl Stainless'), kr: coupang('스텐 밥그릇') },
-    image: 'https://images.unsplash.com/photo-1567123998818-42220478eb04?auto=format&fit=crop&q=80&w=600'
-  },
-  {
-    id: 'tool_soju_glass',
-    nameEn: 'Soju Glass Set',
-    nameKr: '소주잔',
-    searchKeyword: 'Korean Soju Glass Set',
-    description: 'Small glass cups for Soju. The perfect size for a "One-Shot".',
-    priceUsd: 8.99,
-    priceKr: 2000,
+    priceKr: 6000,
     category: 'tableware',
-    links: { global: amz('Soju Glass Set'), kr: coupang('소주잔') },
-    image: 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&q=80&w=600'
+    links: { global: amz('Korean Rice Bowl'), kr: coupang('밥공기') },
+    image: 'https://images.unsplash.com/photo-1596664959098-76a6e2971a8f?auto=format&fit=crop&q=80&w=600'
   },
-
-  // --- K-SNACKS ---
+  
+  // --- K-DRINKS ---
   {
-    id: 'snack_chocopie',
-    nameEn: 'Choco Pie',
-    nameKr: '초코파이',
-    searchKeyword: 'Orion Choco Pie Marshmallow',
-    description: 'The world-famous chocolate covered marshmallow cake.',
-    priceUsd: 5.99,
-    priceKr: 4000,
-    category: 'snack',
-    links: { global: amz('Orion Choco Pie'), kr: coupang('초코파이') },
-    image: 'https://images.unsplash.com/photo-1605698802081-37d0d08b1b38?auto=format&fit=crop&q=80&w=600'
-  },
-  {
-    id: 'snack_seaweed',
-    nameEn: 'Roasted Seaweed (Gim)',
-    nameKr: '김',
-    searchKeyword: 'Korean Roasted Seaweed Snack Sea Salt',
-    description: 'Crispy, salty, and healthy. Eat it with rice or as a snack.',
+    id: 'drink_makgeolli',
+    nameEn: 'Makgeolli (Korean Rice Wine)',
+    nameKr: '막걸리',
+    searchKeyword: 'Kooksoondang Makgeolli Korean Rice Wine',
+    description: 'Unfiltered, milky, and slightly sweet Korean rice wine. Best served chilled.',
     priceUsd: 9.99,
-    priceKr: 5000,
-    category: 'snack',
-    links: { global: amz('Korean Seaweed Snack'), kr: coupang('조미김') },
-    image: 'https://images.unsplash.com/photo-1606923829571-0f26e64f38ad?auto=format&fit=crop&q=80&w=600'
+    priceKr: 3000,
+    category: 'drink',
+    links: { global: amz('Makgeolli'), kr: coupang('막걸리') },
+    image: 'https://images.unsplash.com/photo-1616259024097-47b853545b73?auto=format&fit=crop&q=80&w=600'
   },
-  {
-    id: 'snack_shrimp',
-    nameEn: 'Shrimp Cracker (Saewookkang)',
-    nameKr: '새우깡',
-    searchKeyword: 'Nongshim Shrimp Cracker',
-    description: 'Salty shrimp flavored crackers. Korea\'s favorite snack for decades.',
-    priceUsd: 3.99,
-    priceKr: 1500,
-    category: 'snack',
-    links: { global: amz('Nongshim Shrimp Cracker'), kr: coupang('새우깡') },
-    image: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&q=80&w=600'
-  },
-  {
-    id: 'snack_honeybutter',
-    nameEn: 'Honey Butter Chip',
-    nameKr: '허니버터칩',
-    searchKeyword: 'Haitai Honey Butter Chip',
-    description: 'The legendary potato chips with sweet honey and savory butter flavor.',
-    priceUsd: 4.99,
-    priceKr: 2000,
-    category: 'snack',
-    links: { global: amz('Honey Butter Chip'), kr: coupang('허니버터칩') },
-    image: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?auto=format&fit=crop&q=80&w=600'
-  },
-  {
+   {
     id: 'snack_banana',
-    nameEn: 'Banana Milk',
+    nameEn: 'Banana Flavored Milk',
     nameKr: '바나나맛 우유',
-    searchKeyword: 'Binggrae Banana Milk Drink',
-    description: 'Sweet, creamy, and addictive. The jar shape is iconic.',
-    priceUsd: 6.99,
-    priceKr: 1400,
-    category: 'snack',
+    searchKeyword: 'Binggrae Banana Flavored Milk Drink',
+    description: 'The iconic, sweet and creamy banana milk beloved by all ages in Korea. Perfect for cooling down after a spicy meal.',
+    priceUsd: 8.99, // for a 6-pack
+    priceKr: 5500,
+    category: 'drink',
     links: { global: amz('Binggrae Banana Milk'), kr: coupang('바나나맛 우유') },
-    image: 'https://images.unsplash.com/photo-1602166723225-b873a436152a?auto=format&fit=crop&q=80&w=600'
+    image: 'https://images.unsplash.com/photo-1626078446243-7f3676a642e5?auto=format&fit=crop&q=80&w=600'
   },
-  {
-    id: 'snack_maxim',
-    nameEn: 'Maxim Mocha Gold',
-    nameKr: '맥심 모카골드',
-    searchKeyword: 'Maxim Mocha Gold Instant Coffee Mix',
-    description: 'The golden ratio of coffee, cream, and sugar. The soul food of Korean offices.',
-    priceUsd: 15.99,
-    priceKr: 12000,
-    category: 'snack',
-    links: { global: amz('Maxim Mocha Gold'), kr: coupang('맥심 모카골드') },
-    image: 'https://images.unsplash.com/photo-1589395937827-04d3cb544627?auto=format&fit=crop&q=80&w=600'
-  },
-
+  
   // --- K-SAUCES ---
   {
     id: 'sauce_gochujang',
@@ -498,6 +506,18 @@ export const PRODUCT_CATALOG: Product[] = [
     category: 'sauce',
     links: { global: amz('Gochujang'), kr: coupang('고추장') },
     image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&q=80&w=600'
+  },
+  {
+    id: 'sauce_doenjang',
+    nameEn: 'Doenjang (Soybean Paste)',
+    nameKr: '된장',
+    searchKeyword: 'Doenjang Korean Fermented Soybean Paste',
+    description: 'A rich, savory, and salty fermented soybean paste, essential for Doenjang-jjigae.',
+    priceUsd: 9.99,
+    priceKr: 6000,
+    category: 'sauce',
+    links: { global: amz('Doenjang'), kr: coupang('된장') },
+    image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=600'
   },
   {
     id: 'sauce_gochugaru',
@@ -549,29 +569,17 @@ export const PRODUCT_CATALOG: Product[] = [
   },
   {
     id: 'sauce_pepper',
-    nameEn: 'Black Pepper Powder',
+    nameEn: 'Black Pepper (Ground)',
     nameKr: '후추',
-    searchKeyword: 'Pure Ground Black Pepper',
-    description: 'Adds a sharp kick to beef soups.',
-    priceUsd: 4.50,
-    priceKr: 3000,
+    searchKeyword: 'Coarsely Ground Black Pepper',
+    description: 'A pinch of black pepper is often used to season meat and soups, providing a final touch of flavor.',
+    priceUsd: 5.50,
+    priceKr: 3500,
     category: 'sauce',
-    links: { global: amz('Ground Black Pepper'), kr: coupang('순후추') },
-    image: 'https://images.unsplash.com/photo-1551352726-0e1215b3997e?auto=format&fit=crop&q=80&w=600'
+    links: { global: amz('Black Pepper'), kr: coupang('후추') },
+    image: 'https://images.unsplash.com/photo-1599996088339-e349a187a8b6?auto=format&fit=crop&q=80&w=600'
   },
-  {
-    id: 'sauce_kimchi_powder',
-    nameEn: 'Kimchi Seasoning',
-    nameKr: '김치 시즈닝',
-    searchKeyword: 'Seoul Sisters Kimchi Seasoning Mix',
-    description: 'Magic dust that makes anything taste like Kimchi. Try it on pizza!',
-    priceUsd: 11.99,
-    priceKr: 5000,
-    category: 'sauce',
-    links: { global: amz('Kimchi Seasoning'), kr: coupang('김치 시즈닝') },
-    image: 'https://images.unsplash.com/photo-1550950158-d0d960d9f9dd?auto=format&fit=crop&q=80&w=600'
-  },
-
+  
   // --- K-KITS ---
   {
     id: 'kit_tteokbokki',
@@ -598,235 +606,3 @@ export const PRODUCT_CATALOG: Product[] = [
     image: 'https://images.unsplash.com/photo-1610450949026-c29007cb51a3?auto=format&fit=crop&q=80&w=600'
   }
 ];
-
-const CURATED_POSTS: Post[] = [
-  {
-    id: 'feed_sotddukeong_01',
-    title: 'Countryside Grandma\'s BBQ Secret 👵',
-    author: GHOST_AUTHORS[4], // Camping Dad
-    imageUrl: "https://images.unsplash.com/photo-1594040226829-7f251ab46d80?w=800&q=80",
-    videoUrl: 'https://cdn.pixabay.com/video/2022/04/24/115019-702758253_large.mp4', // Sizzling meat
-    audioUrl: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3',
-    description: 'Have you ever tried grilling pork belly on a massive cast iron cauldron lid? The convex shape drains the oil perfectly, making the meat crispy on the outside and juicy on the inside.',
-    likes: 9540,
-    bestVideoUrl: "https://www.youtube.com/watch?v=kY8H2sJq3Qk", // Countryside cooking
-    tags: [
-      { id: 't_lid_1', x: 50, y: 50, product: PRODUCT_CATALOG.find(p => p.id === 'tool_sotddukeong')! },
-      { id: 't_lid_2', x: 70, y: 70, product: PRODUCT_CATALOG.find(p => p.id === 'tool_scissors')! },
-      { id: 't_lid_3', x: 30, y: 30, product: PRODUCT_CATALOG.find(p => p.id === 'sauce_ssamjang')! },
-    ]
-  },
-  {
-    id: 'feed_yukgaejang_001',
-    title: 'Secret Recipe: Authentic Yukgaejang (Spicy Beef Soup) 🌶️',
-    author: GHOST_AUTHORS[0], // Mama Kim
-    imageUrl: 'https://images.unsplash.com/photo-1580651315530-69c8e0026377?w=800&q=80',
-    videoUrl: 'https://cdn.pixabay.com/video/2023/10/22/186115-877660652_large.mp4', // Bubbling soup
-    audioUrl: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_2238463092.mp3', // Boiling sound
-    description: 'This soup is the soul of Korean comfort food. While the Ttukbaegi keeps it hot, the real secret lies in the specialized sauces and high-quality beef.',
-    likes: 8200,
-    bestVideoUrl: "https://www.youtube.com/watch?v=HuW3t_XbB78", // Paik's Cuisine Yukgaejang
-    tags: [
-      { id: 't_yuk_1', x: 50, y: 50, product: PRODUCT_CATALOG.find(p => p.id === 'tool_ttukbaegi_01')! },
-      { id: 't_yuk_2', x: 40, y: 60, product: PRODUCT_CATALOG.find(p => p.id === 'ingredient_beef_brisket')! },
-      { id: 't_yuk_3', x: 60, y: 40, product: PRODUCT_CATALOG.find(p => p.id === 'veg_green_onion')! },
-    ],
-    recipeEssentials: [
-      { product: PRODUCT_CATALOG.find(p => p.id === 'sauce_gochugaru')!, reason: 'Must-have for the spicy red broth.' },
-      { product: PRODUCT_CATALOG.find(p => p.id === 'sauce_soup_soy')!, reason: 'Adds deep umami to the soup base.' },
-      { product: PRODUCT_CATALOG.find(p => p.id === 'sauce_sesame')!, reason: 'Used to sauté the beef first.' },
-      { product: PRODUCT_CATALOG.find(p => p.id === 'ingredient_garlic_minced')!, reason: 'The soul of Korean soup.' },
-      { product: PRODUCT_CATALOG.find(p => p.id === 'sauce_pepper')!, reason: 'Final touch for the beef flavor.' },
-    ]
-  },
-  {
-    id: 'feed_ramyun_001',
-    title: 'Han River Style Ramyeon Feast 🍜',
-    author: GHOST_AUTHORS[1], // Seoul Eats
-    imageUrl: 'https://images.unsplash.com/photo-1618888265008-591574a62174?w=800&q=80',
-    videoUrl: 'https://cdn.pixabay.com/video/2021/04/28/72506-543162793_large.mp4', // Noodles
-    audioUrl: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3', // Slurping/Sizzle (Mock)
-    description: 'The golden pot (Yang-eun-naem-bi) heats up fast, keeping noodles chewy. Don\'t forget the egg!',
-    likes: 5420,
-    bestVideoUrl: "https://www.youtube.com/watch?v=Fj-y5jC6WjQ", // Han River Ramen
-    tags: [
-      { id: 't_new_1', x: 50, y: 50, product: PRODUCT_CATALOG.find(p => p.id === 'ramyun_samyang_01')! },
-      { id: 't_new_2', x: 35, y: 60, product: PRODUCT_CATALOG.find(p => p.id === 'tool_gold_pot')! },
-      { id: 't_new_3', x: 75, y: 75, product: PRODUCT_CATALOG.find(p => p.id === 'tool_sujeo')! },
-      { id: 't_new_4', x: 55, y: 40, product: PRODUCT_CATALOG.find(p => p.id === 'ingredient_egg_01')! },
-    ]
-  },
-  {
-    id: 'post1',
-    title: 'Weekend Samgyeopsal Party at Home 🥓',
-    author: GHOST_AUTHORS[2], // Chef Lee
-    imageUrl: 'https://images.unsplash.com/photo-1594967396068-45cb1d310123?q=80&w=1200&auto=format&fit=crop', // K-BBQ visual
-    videoUrl: 'https://cdn.pixabay.com/video/2022/04/24/115019-702758253_large.mp4', // BBQ Sizzle
-    audioUrl: 'https://cdn.pixabay.com/download/audio/2022/03/10/audio_c8c8a73467.mp3', // Sizzle sound
-    description: 'Nothing beats grilling pork belly on a proper slanted pan. The oil drains right out!',
-    likes: 1240,
-    tags: [
-      { id: 't1', x: 50, y: 55, product: PRODUCT_CATALOG.find(p => p.id === 'tool_bbq_grill_01')! }, // Grill (Authentic)
-      { id: 't2', x: 75, y: 70, product: PRODUCT_CATALOG.find(p => p.id === 'tool_scissors')! }, // Scissors
-      { id: 't3', x: 20, y: 80, product: PRODUCT_CATALOG.find(p => p.id === 'sauce_ssamjang')! }, // Ssamjang
-    ]
-  },
-  {
-    id: 'post2',
-    title: 'Fire Noodle Challenge! 🔥 Can you handle it?',
-    author: GHOST_AUTHORS[3], // Spicy Girl
-    imageUrl: 'https://images.unsplash.com/photo-1627042633145-b780d842ba45?q=80&w=1200&auto=format&fit=crop', // Stew visual
-    description: 'The legendary Fire Noodle Challenge. It\'s not just about the heat, it\'s about the flavor!',
-    likes: 28500,
-    tags: [
-      { id: 't4', x: 50, y: 60, product: PRODUCT_CATALOG.find(p => p.id === 'ramyun_buldak')! }, 
-      { id: 't5', x: 20, y: 30, product: PRODUCT_CATALOG.find(p => p.id === 'snack_banana')! },
-    ]
-  },
-  {
-    id: 'post3',
-    title: 'Late Night Convenience Store Vibe 🏪',
-    author: GHOST_AUTHORS[1], // Seoul Eats
-    imageUrl: 'https://images.unsplash.com/photo-1629851608240-a10c2c2f483c?q=80&w=1200&auto=format&fit=crop',
-    description: 'Mixing Chapagetti and Neoguri is a must. The Parasite movie combo!',
-    likes: 3200,
-    tags: [
-      { id: 't6', x: 40, y: 50, product: PRODUCT_CATALOG.find(p => p.id === 'ramyun_chapagetti')! }, // Chapagetti
-      { id: 't7', x: 60, y: 50, product: PRODUCT_CATALOG.find(p => p.id === 'ramyun_neoguri')! }, // Neoguri
-    ]
-  },
-  {
-    id: 'post4',
-    title: 'Office Break Time ☕',
-    author: GHOST_AUTHORS[2], // Chef Lee
-    imageUrl: 'https://images.unsplash.com/photo-1589395937827-04d3cb544627?q=80&w=1200&auto=format&fit=crop',
-    description: 'Maxim Gold is the fuel of the Korean economy. Sweet and creamy.',
-    likes: 540,
-    tags: [
-      { id: 't8', x: 50, y: 50, product: PRODUCT_CATALOG.find(p => p.id === 'snack_maxim')! }, // Maxim
-    ]
-  },
-  {
-    id: 'ghost_post_1',
-    title: 'Makgeolli Night with Pajeon (Pancakes)',
-    author: GHOST_AUTHORS[0],
-    imageUrl: 'https://source.unsplash.com/800x800/?korean,pancake',
-    description: 'A rainy day calls for crispy Pajeon and a kettle of Makgeolli. The perfect combination!',
-    likes: 1800,
-    tags: [
-      { id: 'gp1_1', x: 60, y: 60, product: PRODUCT_CATALOG.find(p => p.id === 'tool_makgeolli_kettle')! },
-    ]
-  },
-  {
-    id: 'ghost_post_2',
-    title: 'The Art of the Perfect Jjapaguri 🎬',
-    author: GHOST_AUTHORS[3],
-    imageUrl: 'https://source.unsplash.com/800x800/?jjapaguri,ramen',
-    description: 'Parasite-style Ram-don is a delicacy. The secret is the perfect ratio and a final touch of sesame oil.',
-    likes: 15300,
-    tags: [
-      { id: 'gp2_1', x: 45, y: 55, product: PRODUCT_CATALOG.find(p => p.id === 'ramyun_chapagetti')! },
-      { id: 'gp2_2', x: 65, y: 45, product: PRODUCT_CATALOG.find(p => p.id === 'ramyun_neoguri')! },
-      { id: 'gp2_3', x: 30, y: 70, product: PRODUCT_CATALOG.find(p => p.id === 'sauce_sesame')! },
-    ]
-  },
-  {
-    id: 'ghost_post_3',
-    title: 'Outdoor K-BBQ is another level!',
-    author: GHOST_AUTHORS[4],
-    imageUrl: 'https://source.unsplash.com/800x800/?camping,bbq,korean',
-    description: 'Grilling Samgyeopsal outdoors with friends is an unforgettable experience. Don\'t forget the self-standing tongs!',
-    likes: 2100,
-    tags: [
-      { id: 'gp3_1', x: 50, y: 65, product: PRODUCT_CATALOG.find(p => p.id === 'tool_bbq_grill_01')! },
-      { id: 'gp3_2', x: 70, y: 50, product: PRODUCT_CATALOG.find(p => p.id === 'tool_tongs')! },
-    ]
-  }
-];
-
-/**
- * [GENESIS SCRIPT]
- * Generates 100 global personas and their lifestyle feeds to simulate an active community.
- */
-function generateGlobalPersonaPosts(): Post[] {
-  const generatedPosts: Post[] = [];
-
-  const nations = [
-    { code: "US", name: "USA", names: ["Mike", "Sarah", "John", "Emily"], vibe: "Wild Camping" },
-    { code: "KR", name: "Korea", names: ["Minjun", "Ji-u", "Hyun", "Soo"], vibe: "Authentic" },
-    { code: "JP", name: "Japan", names: ["Ken", "Yui", "Hiro", "Sakura"], vibe: "Minimalist" },
-    { code: "FR", name: "France", names: ["Leo", "Lea", "Gabriel", "Amelie"], vibe: "Gourmet" },
-    { code: "VN", name: "Vietnam", names: ["Linh", "Minh", "An", "Chi"], vibe: "Spicy Lover" }
-  ];
-
-  const hobbies = [
-    { 
-      type: "Camping", 
-      keywords: ["camping", "bonfire", "tent"],
-      products: ["tool_gold_pot", "ramyun_shin", "tool_bbq_grill_01", "sauce_ssamjang"], 
-      desc: "Nothing beats Ramyeon outdoors! ⛺️🍜"
-    },
-    { 
-      type: "Fishing", 
-      keywords: ["fishing", "lake", "fish"],
-      products: ["tool_sujeo", "sauce_gochujang", "ramyun_neoguri"], 
-      desc: "Catch of the day + Spicy Noodle Soup 🐟🌶️"
-    },
-    { 
-      type: "HomeCooking", 
-      keywords: ["kitchen", "cooking", "home"],
-      products: ["kit_tteokbokki", "sauce_soup_soy", "ingredient_egg_01"], 
-      desc: "Trying K-Food recipe at home today! 👩‍🍳"
-    }
-  ];
-
-  for (let i = 0; i < 100; i++) {
-    const nation = nations[Math.floor(Math.random() * nations.length)];
-    const hobby = hobbies[Math.floor(Math.random() * hobbies.length)];
-    const userName = `${nation.names[Math.floor(Math.random() * nation.names.length)]}_${Math.floor(Math.random() * 999)}`;
-    
-    const feedImage = `https://source.unsplash.com/800x800/?${hobby.keywords[0]},korean,food,${i}`; 
-    const avatarImage = `https://i.pravatar.cc/150?u=${userName}`;
-
-    const author: Author = {
-      id: `user_persona_${i}`,
-      name: userName,
-      avatar: avatarImage,
-      country: nation.name,
-      badge: `${hobby.type} Lover`
-    };
-
-    const tags: Tag[] = hobby.products
-      .map(prodId => {
-        const product = PRODUCT_CATALOG.find(p => p.id === prodId);
-        if (!product) {
-          console.warn(`Product with id "${prodId}" not found in catalog.`);
-          return null;
-        }
-        return {
-          id: `tag_${i}_${prodId}`,
-          x: Math.random() * 80 + 10,
-          y: Math.random() * 80 + 10,
-          product: product
-        };
-      })
-      .filter((tag): tag is Tag => tag !== null);
-
-    const newPost: Post = {
-      id: `post_persona_${i}`,
-      author: author,
-      title: `${hobby.desc} from ${nation.name}`,
-      description: `Just enjoying my hobby with some delicious Korean food! Having ${tags.map(t => t.product.nameEn).join(', ')} makes it even better.`,
-      imageUrl: feedImage,
-      likes: Math.floor(Math.random() * 500) + 10,
-      tags: tags,
-    };
-
-    generatedPosts.push(newPost);
-  }
-
-  return generatedPosts;
-}
-
-// Mock Posts (The Feed) = Curated Influencers + Generated Global Personas
-export const MOCK_POSTS: Post[] = [...CURATED_POSTS, ...generateGlobalPersonaPosts()];

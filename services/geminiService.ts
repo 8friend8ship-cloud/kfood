@@ -1,97 +1,105 @@
-import { GoogleGenAI, Type } from "@google/genai";
-import { DetectedItem } from "../types";
+import { Author, DetectedItem, Product, RecipeEssential } from "../types";
+import {
+  callAnalyzeKitchenImage,
+  callGenerateAvatarImage,
+  callGeneratePersonaImage,
+  callGenerateAuthorStory,
+  callGeneratePostContent,
+  callGenerateRecipeEssentials,
+  callGetLocalizedIngredient
+} from './firebaseService';
 
-// NOTE: In a real production app, this would likely be a backend call to hide the key,
-// but for this demo, we use the client-side SDK with the assumed environment variable.
-// The prompt assumes the user has configured process.env.API_KEY.
+// NOTE: All direct Gemini API calls have been removed from this file.
+// This service now acts as a passthrough to the secure, proxied backend functions
+// defined in `firebaseService.ts`. This aligns with the new architecture where
+// the API key is managed securely on the server.
 
-// Safety check for process.env
-const apiKey = (typeof process !== 'undefined' && process.env && process.env.API_KEY) ? process.env.API_KEY : '';
-
-const ai = new GoogleGenAI({ apiKey });
-
-export const analyzeKitchenImage = async (base64Image: string): Promise<DetectedItem[]> => {
-  if (!apiKey) {
-    console.warn("Gemini API Key is missing. Returning mock data.");
-    return [
-      {
-        name: "Mock Ttukbaegi",
-        koreanName: "Ttukbaegi",
-        searchKeyword: "Korean Stone Bowl Earthenware Pot",
-        description: "AI Disabled: Mock identification of an earthenware pot.",
-        confidence: 0.9,
-        suggestedCategory: 'tool',
-        boundingBox: [40, 40, 60, 60] // Mock center position
-      }
-    ];
+export const analyzeKitchenImage = async (base64Image: string, productsToFind?: Product[]): Promise<DetectedItem[]> => {
+  const apiKey = process.env.API_KEY; // Keep check for mock data return
+  if (!apiKey || apiKey === "YOUR_API_KEY") {
+    console.warn("Gemini API Key is missing. Using Firebase mock data for vision analysis.");
   }
-
   try {
-    // Corrected Model: gemini-3-flash-preview supports responseSchema and vision tasks well.
-    const model = 'gemini-3-flash-preview'; 
-    
-    const prompt = `
-      You are an expert Korean Chef and E-commerce Specialist.
-      Analyze this cooking image to detect items that can be sold on Amazon US.
-      
-      INSTRUCTIONS:
-      1. Identify items like: Ramyeon, Kimchi, Ttukbaegi (Pot), Grill Pan, Scissors, Tongs, Rice Bowl, Soju Glass.
-      2. For each item, provide a 'searchKeyword' OPTIMIZED for Amazon US sales.
-         - Bad: "Ramen"
-         - Good: "Buldak Spicy Chicken Ramen Variety Pack" (Bundles make more money)
-         - Bad: "Pot"
-         - Good: "Korean Earthenware Clay Pot with Tray" (Specific)
-      3. Estimate its 2D Bounding Box (ymin, xmin, ymax, xmax) in 0-100 scale.
-      4. Provide a confidence score (0.0 to 1.0).
-      
-      OUTPUT FORMAT:
-      Return a STRICT JSON array matching the schema.
-    `;
-
-    const response = await ai.models.generateContent({
-      model: model,
-      contents: {
-        parts: [
-          { inlineData: { mimeType: 'image/jpeg', data: base64Image } },
-          { text: prompt }
-        ]
-      },
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              name: { type: Type.STRING },
-              koreanName: { type: Type.STRING },
-              searchKeyword: { type: Type.STRING, description: "Amazon optimized search term" },
-              description: { type: Type.STRING },
-              suggestedCategory: { type: Type.STRING, enum: ['tool', 'ingredient', 'tableware'] },
-              boundingBox: {
-                type: Type.ARRAY,
-                items: { type: Type.NUMBER },
-                description: "ymin, xmin, ymax, xmax (0-100)"
-              },
-              confidence: { type: Type.NUMBER }
-            }
-          }
-        }
-      }
-    });
-
-    const jsonText = response.text;
-    if (!jsonText) {
-      console.warn("Gemini returned empty text.");
-      return [];
-    }
-
-    const items = JSON.parse(jsonText) as DetectedItem[];
-    // Filter out low confidence items
-    return items.filter(item => (item.confidence || 0) > 0.5);
-
+    return await callAnalyzeKitchenImage(base64Image, productsToFind);
   } catch (error) {
-    console.error("Gemini Vision Analysis Failed:", error);
+    console.error("Gemini Vision Analysis via proxy failed:", error);
     return [];
+  }
+};
+
+export const generateAvatarImage = async (author: Author): Promise<string> => {
+  try {
+    return await callGenerateAvatarImage(author);
+  } catch (error) {
+    console.error("Avatar generation via proxy failed:", error);
+    throw new Error("Avatar generation failed.");
+  }
+};
+
+export const generatePersonaImage = async (
+  referenceAvatarBase64: string,
+  food: string,
+  setting: string,
+  style: 'person' | 'food_only' = 'person'
+): Promise<string> => {
+  try {
+    return await callGeneratePersonaImage(referenceAvatarBase64, food, setting, style);
+  } catch (error) {
+    console.error("Persona image generation via proxy failed:", error);
+    throw new Error("No image was generated by the API.");
+  }
+};
+
+export const generateAuthorStory = async (author: Author): Promise<string> => {
+  try {
+    return await callGenerateAuthorStory(author);
+  } catch (error) {
+    console.error("Failed to generate author story via proxy:", error);
+    return `An error occurred while generating a story for ${author.name}.`;
+  }
+};
+
+export const generatePostContent = async (
+    author: Author,
+    product: Product,
+    isRecipeHack: boolean,
+    mealContext?: string,
+): Promise<{ title: string, description: string }> => {
+    try {
+        return await callGeneratePostContent(author, product, isRecipeHack, mealContext);
+    } catch (error) {
+        console.error(`Failed to generate localized content for ${author.name} via proxy:`, error);
+        return {
+            title: isRecipeHack ? `You HAVE to try this K-Food Hack! 🤯` : `${author.name}'s meal: ${product.nameEn}!`,
+            description: isRecipeHack ? `My new obsession: **${product.nameEn}**! It's amazing. Check the tags for ingredients!` : `Enjoying some delicious ${product.nameEn}. Perfect! Check the tags to see what I used.`
+        };
+    }
+};
+
+export const generateRecipeEssentials = async (base64Image: string, dishName: string): Promise<RecipeEssential[]> => {
+  try {
+    return await callGenerateRecipeEssentials(base64Image, dishName);
+  } catch (error) {
+    console.error(`Failed to generate recipe essentials for "${dishName}" via proxy:`, error);
+    return [];
+  }
+};
+
+export const getLocalizedIngredient = async (
+  product: Product,
+  author: Author
+): Promise<{ localizedName: string; localizedDescription: string } | null> => {
+  if (product.category !== 'ingredient' || author.country === 'Korea') {
+    return null;
+  }
+  const isLocalizable = ['beef', 'pork', 'chicken', 'lamb', 'fish'].some(kw => product.nameEn.toLowerCase().includes(kw));
+  if (!isLocalizable) {
+    return null;
+  }
+  try {
+    return await callGetLocalizedIngredient(product, author);
+  } catch (error) {
+    console.error(`Failed to localize ingredient "${product.nameEn}" for ${author.country} via proxy:`, error);
+    return null;
   }
 };
