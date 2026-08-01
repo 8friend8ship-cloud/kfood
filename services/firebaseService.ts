@@ -6,7 +6,6 @@ import {
   addDoc, 
   query, 
   orderBy,
-  writeBatch,
   serverTimestamp,
   Timestamp,
   doc,
@@ -25,7 +24,6 @@ import {
   httpsCallable 
 } from 'firebase/functions';
 import { Post, Creator, Author, Product, DetectedItem, RecipeEssential } from '../types';
-import { generateInitialFeed } from '../data/seed';
 import { FALLBACK_IMAGE_BASE64 } from '../utils/imageUtils';
 
 // --- Firebase Configuration ---
@@ -101,43 +99,13 @@ export const onAuthChange = (callback: (user: User | null) => void) => {
 
 // --- FIRESTORE FUNCTIONS (Posts) ---
 
-const seedFirestore = async () => {
-  if (!postsCollection) return;
-  
-  console.log("⏳ Seeding Firestore with initial data... This may take a moment.");
-  const initialPosts = generateInitialFeed();
-  const batch = writeBatch(db);
-
-  initialPosts.forEach(post => {
-    const docRef = doc(postsCollection);
-    const postData = {
-      ...post,
-      createdAt: post.createdAt ? Timestamp.fromMillis(post.createdAt) : serverTimestamp()
-    };
-    batch.set(docRef, postData);
-  });
-
-  try {
-    await batch.commit();
-    console.log("✅ Firestore seeding complete!");
-  } catch (error) {
-    console.error("Error during Firestore seeding:", error);
-  }
-};
-
 export const getPostsFromFirestore = async (): Promise<Post[]> => {
-  if (!postsCollection) return Promise.resolve([]);
+  if (!postsCollection) throw new Error('PERSISTENCE_UNAVAILABLE');
 
   try {
     const q = query(postsCollection, orderBy('createdAt', 'desc'));
     let querySnapshot = await getDocs(q);
 
-    if (querySnapshot.empty) {
-      console.log(" Firestore collection is empty. Triggering one-time seed.");
-      await seedFirestore();
-      querySnapshot = await getDocs(q);
-    }
-    
     return querySnapshot.docs.map(doc => {
       const data = doc.data();
       return {
@@ -154,7 +122,7 @@ export const getPostsFromFirestore = async (): Promise<Post[]> => {
 };
 
 export const addPostToFirestore = async (newPost: Omit<Post, 'id'>): Promise<void> => {
-   if (!postsCollection) return Promise.resolve();
+   if (!postsCollection) throw new Error('PERSISTENCE_UNAVAILABLE');
    
   try {
     const postData = {

@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test tests/*.test.mjs",
-    "bundle:check": "node tests/bundle-budget.mjs"
+    "bundle:check": "node tests/bundle-budget.mjs",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "react": "^19.2.4",

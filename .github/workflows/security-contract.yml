@@ -18,9 +18,9 @@ jobs:
           node-version: 20
       - run: npm install
       - name: Security contract pass 1
-        run: npm test
+        run: npm test && npm run typecheck
       - name: Security contract pass 2
-        run: npm test
+        run: npm test && npm run typecheck
       - name: Production build and bundle budget pass 1
         run: |
           npm run build
@@ -30,4 +30,4 @@ jobs:
           npm run build
           npm run bundle:check
       - name: Dependency audit
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=low

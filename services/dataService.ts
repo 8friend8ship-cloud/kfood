@@ -1,24 +1,36 @@
 import { Post } from '../types';
-import { getPostsFromFirestore, addPostToFirestore } from './firebaseService';
+import { addPostToFirestore } from './firebaseService';
+import { readBoundedJsonResponse, validateFeedSnapshot } from './feedContract.mjs';
 
-// This service now acts as a bridge between the application and the Firebase backend,
-// abstracting away the direct Firestore calls.
+// Public discovery data comes only from the audited same-origin Core/Drive feed.
+// User writes remain separate and fail closed when persistence is unavailable.
 
 /**
- * Asynchronously fetches all posts from the Firestore database.
- * If the database is empty, it will be automatically seeded with initial data.
- * @returns A promise that resolves to an array of posts.
+ * Fetches a bounded, fresh snapshot from the server-side feed adapter.
  */
-export const getPosts = async (): Promise<Post[]> => {
-  try {
-    const posts = await getPostsFromFirestore();
-    return posts;
-  } catch (error) {
-    console.error("Failed to load posts from Firestore:", error);
-    // Return an empty array or handle error appropriately in the UI
-    return [];
-  }
+export interface FeedSnapshot {
+  sourceId: string;
+  sourceUpdatedAt: string;
+  posts: Post[];
+}
+
+export const getFeedSnapshot = async (): Promise<FeedSnapshot> => {
+  const response = await fetch('/api/feed', {
+    method: 'GET',
+    credentials: 'omit',
+    cache: 'no-store',
+    headers: { accept: 'application/json' },
+  });
+  const raw = await readBoundedJsonResponse(response);
+  const snapshot = validateFeedSnapshot(raw);
+  return {
+    sourceId: snapshot.source_id,
+    sourceUpdatedAt: snapshot.source_updated_at,
+    posts: snapshot.posts as Post[],
+  };
 };
+
+export const getPosts = async (): Promise<Post[]> => (await getFeedSnapshot()).posts;
 
 /**
  * Asynchronously adds a new post to the Firestore database.
@@ -26,11 +38,5 @@ export const getPosts = async (): Promise<Post[]> => {
  * @returns A promise that resolves when the post is successfully added.
  */
 export const addPost = async (newPost: Post): Promise<void> => {
-  try {
-    await addPostToFirestore(newPost);
-  } catch (error) {
-    console.error("Failed to save post to Firestore:", error);
-    // The UI update is optimistic, so this error is for logging/monitoring.
-    // We could add a retry mechanism or user notification here if needed.
-  }
+  await addPostToFirestore(newPost);
 };

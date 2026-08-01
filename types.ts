@@ -121,6 +121,8 @@ export interface Post {
   isCinemagraph?: boolean; // Flag for fake video posts
   cinemagraphEffect?: 'steam'; // Effect type for fake video
   isBoosted?: boolean; // Flag for promoted posts
+  sourceId?: string; // Audited Core/Drive source lineage
+  sourceUpdatedAt?: string; // ISO timestamp for source freshness
 }
 
 export enum Region {
