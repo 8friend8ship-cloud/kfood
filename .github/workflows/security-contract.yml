@@ -1,0 +1,30 @@
+name: KFood Security Contract CI
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  security-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Security contract pass 1
+        run: npm test
+      - name: Security contract pass 2
+        run: npm test
+      - name: Production build pass 1
+        run: npm run build
+      - name: Production build pass 2
+        run: npm run build
+      - name: Dependency audit
+        run: npm audit --audit-level=high
