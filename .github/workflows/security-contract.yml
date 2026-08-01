@@ -21,9 +21,13 @@ jobs:
         run: npm test
       - name: Security contract pass 2
         run: npm test
-      - name: Production build pass 1
-        run: npm run build
-      - name: Production build pass 2
-        run: npm run build
+      - name: Production build and bundle budget pass 1
+        run: |
+          npm run build
+          npm run bundle:check
+      - name: Production build and bundle budget pass 2
+        run: |
+          npm run build
+          npm run bundle:check
       - name: Dependency audit
         run: npm audit --audit-level=high
