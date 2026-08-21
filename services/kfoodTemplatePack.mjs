@@ -39,9 +39,10 @@ export function buildKfoodT1(seed) {
   };
 }
 
-export function buildKfoodT2(t1, now = new Date()) {
+export function buildKfoodT2(t1) {
   if (!Array.isArray(t1.steps) || !t1.steps.length) throw new Error('KFOOD_REQUIRED:steps');
-  const createdAt = now.getTime();
+  const createdAt = Date.parse(t1.source.updatedAt);
+  if (!Number.isFinite(createdAt)) throw new Error('KFOOD_SOURCE_UPDATED_AT');
   return {
     contract: 'KFOOD_COMMERCE_FEED_T2_V1',
     source_id: t1.source.id,
