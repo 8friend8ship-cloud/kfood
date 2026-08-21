@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildKfoodT1, buildKfoodT2, validateKfoodT2 } from '../services/kfoodTemplatePack.mjs';
+import { validateFeedSnapshot } from '../services/feedContract.mjs';
 
 const seed = {
   seedId: 'SEED_KFOOD_BIBIMBAP_001',
@@ -25,11 +26,15 @@ const seed = {
 
 test('builds app-specific recipe T1 and commerce T2 with provenance', () => {
   const t1 = buildKfoodT1(seed);
-  const t2 = buildKfoodT2(t1, new Date('2026-08-21T08:30:00.000Z'));
+  const t2 = buildKfoodT2(t1);
   assert.equal(t1.contract, 'KFOOD_RECIPE_T1_V1');
   assert.equal(t2.posts[0].title, '돌솥비빔밥');
   assert.equal(t2.posts[0].tags[0].product.sourceUrl, seed.sourceUrl);
+  assert.equal(t2.posts[0].createdAt, Date.parse(seed.sourceUpdatedAt));
   assert.equal(validateKfoodT2(t2), true);
+  const frontFeed = validateFeedSnapshot(t2, Date.parse('2026-08-21T08:30:00.000Z'));
+  assert.equal(frontFeed.posts[0].tags[0].product.priceVerifiedAt, seed.products[0].priceVerifiedAt);
+  assert.equal(frontFeed.posts[0].tags[0].product.sourceUrl, seed.products[0].sourceUrl);
 });
 
 test('keeps order, payment, and publishing closed', () => {
