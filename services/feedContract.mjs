@@ -66,6 +66,8 @@ const validateProduct = (value, path) => {
     description: requiredString(value.description, `${path}.description`, 1200),
     priceUsd: boundedNumber(value.priceUsd, `${path}.priceUsd`, 0, 1_000_000),
     priceKr: boundedNumber(value.priceKr, `${path}.priceKr`, 0, 1_000_000_000),
+    priceVerifiedAt: requiredString(value.priceVerifiedAt, `${path}.priceVerifiedAt`, 80),
+    sourceUrl: validateFeedSourceUrl(value.sourceUrl),
     category,
     links: {
       global: safeUrl(value.links?.global, `${path}.links.global`, PRODUCT_HOSTS),
@@ -147,3 +149,5 @@ export const readBoundedJsonResponse = async (response) => {
 };
 
 export const FEED_LIMITS = Object.freeze({ maxBodyBytes: MAX_BODY_BYTES, maxPosts: MAX_POSTS, maxTagsPerPost: MAX_TAGS_PER_POST, maxAgeMs: MAX_AGE_MS });
+
+
