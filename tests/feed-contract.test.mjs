@@ -5,7 +5,10 @@ import { FEED_LIMITS, readBoundedJsonResponse, validateFeedSnapshot, validateFee
 const NOW = Date.parse('2026-08-02T00:00:00+09:00');
 const product = {
   id: 'product-1', nameEn: 'Stone Bowl', nameKr: '뚝배기', description: 'Audited product.',
-  priceUsd: 20, priceKr: 25000, category: 'tool',
+  priceUsd: 20, priceKr: 25000,
+  priceVerifiedAt: '2026-08-01T14:45:00.000Z',
+  sourceUrl: 'https://docs.google.com/spreadsheets/d/approved',
+  category: 'tool',
   links: { global: 'https://www.amazon.com/s?k=stone+bowl', kr: 'https://www.coupang.com/np/search?q=뚝배기' },
   image: 'https://images.unsplash.com/photo-1',
 };
