@@ -15,10 +15,6 @@ import {
 // the API key is managed securely on the server.
 
 export const analyzeKitchenImage = async (base64Image: string, productsToFind?: Product[]): Promise<DetectedItem[]> => {
-  const apiKey = process.env.API_KEY; // Keep check for mock data return
-  if (!apiKey || apiKey === "YOUR_API_KEY") {
-    console.warn("Gemini API Key is missing. Using Firebase mock data for vision analysis.");
-  }
   try {
     return await callAnalyzeKitchenImage(base64Image, productsToFind);
   } catch (error) {

@@ -5,7 +5,7 @@ import { UploadWizard } from './components/UploadWizard';
 import { CreatorHub } from './components/CreatorHub';
 import { Region, Post, Author, Creator } from './types';
 import { THEMES, ALL_PERSONAS } from './constants';
-import { getPosts, addPost } from './services/dataService';
+import { getFeedSnapshot, addPost } from './services/dataService';
 import { onAuthChange, getCreatorProfile } from './services/firebaseService';
 import { runSchedulerTick } from './services/schedulerService';
 import { generateAuthorStory } from './services/geminiService';
@@ -20,6 +20,8 @@ export default function App() {
   
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [feedSource, setFeedSource] = useState<{ id: string; updatedAt: string } | null>(null);
+  const [feedError, setFeedError] = useState<string | null>(null);
   
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -69,10 +71,15 @@ export default function App() {
     const loadInitialData = async () => {
       setIsLoading(true);
       try {
-        const initialPosts = await getPosts();
-        setPosts(initialPosts);
+        const snapshot = await getFeedSnapshot();
+        setPosts(snapshot.posts);
+        setFeedSource({ id: snapshot.sourceId, updatedAt: snapshot.sourceUpdatedAt });
+        setFeedError(null);
       } catch (error) {
         console.error("Error loading initial posts:", error);
+        setPosts([]);
+        setFeedSource(null);
+        setFeedError('Verified Core/Drive feed is unavailable. Product links and payment actions remain disabled.');
       } finally {
         setIsLoading(false);
       }
@@ -80,16 +87,25 @@ export default function App() {
     loadInitialData();
   }, []);
 
-  const handleNewPost = (newPost: Post) => {
-    setPosts(prevPosts => [newPost, ...prevPosts]);
-    addPost(newPost).catch(error => {
+  const handleNewPost = async (newPost: Post) => {
+    try {
+      await addPost(newPost);
+      setPosts(prevPosts => [newPost, ...prevPosts]);
+    } catch (error) {
       console.error("Failed to persist new post:", error);
-    });
+      setFeedError('The new post was not saved, so it was not added to the customer feed.');
+    }
   };
   
-  const handlePostCreatedByAI = (newPost: Post) => {
-    setPosts(prevPosts => [newPost, ...prevPosts]);
-    setIsUploadOpen(false);
+  const handlePostCreatedByAI = async (newPost: Post) => {
+    try {
+      await addPost(newPost);
+      setPosts(prevPosts => [newPost, ...prevPosts]);
+      setIsUploadOpen(false);
+    } catch (error) {
+      console.error("Failed to persist generated post:", error);
+      setFeedError('The generated post was not saved, so it was not shown to customers.');
+    }
   };
   
   const handleManualGenerate = async () => {
@@ -195,6 +211,16 @@ export default function App() {
               : "전 세계에 한국의 식문화를 소개합니다."}
           </p>
         </div>
+
+        {feedSource ? (
+          <div className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-900">
+            Verified source: <strong>{feedSource.id}</strong> · Updated {new Date(feedSource.updatedAt).toLocaleString()}
+          </div>
+        ) : feedError ? (
+          <div role="alert" className="mb-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs font-medium text-amber-900">
+            {feedError}
+          </div>
+        ) : null}
 
         <div className="mb-8 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
           <div className="flex gap-3">
