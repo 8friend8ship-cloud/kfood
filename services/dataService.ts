@@ -1,36 +1,27 @@
 import { Post } from '../types';
+import { generateInitialFeed } from '../data/seed';
 import { getPostsFromFirestore, addPostToFirestore } from './firebaseService';
 
-// This service now acts as a bridge between the application and the Firebase backend,
-// abstracting away the direct Firestore calls.
+const localFeed = (): Post[] => generateInitialFeed();
 
 /**
- * Asynchronously fetches all posts from the Firestore database.
- * If the database is empty, it will be automatically seeded with initial data.
- * @returns A promise that resolves to an array of posts.
+ * Canonical runtime is stored Seed/backdata first.
+ * Firebase is an optional persistence layer only when it actually returns data.
  */
 export const getPosts = async (): Promise<Post[]> => {
   try {
     const posts = await getPostsFromFirestore();
-    return posts;
+    if (Array.isArray(posts) && posts.length > 0) return posts;
   } catch (error) {
-    console.error("Failed to load posts from Firestore:", error);
-    // Return an empty array or handle error appropriately in the UI
-    return [];
+    console.warn('Firebase post backend unavailable; using K-Food Seed backdata.', error);
   }
+  return localFeed();
 };
 
-/**
- * Asynchronously adds a new post to the Firestore database.
- * @param newPost The post object to be added.
- * @returns A promise that resolves when the post is successfully added.
- */
 export const addPost = async (newPost: Post): Promise<void> => {
   try {
     await addPostToFirestore(newPost);
   } catch (error) {
-    console.error("Failed to save post to Firestore:", error);
-    // The UI update is optimistic, so this error is for logging/monitoring.
-    // We could add a retry mechanism or user notification here if needed.
+    console.warn('Optional Firebase persistence unavailable; front remains usable with local Seed state.', error);
   }
 };
