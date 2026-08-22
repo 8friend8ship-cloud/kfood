@@ -1,0 +1,7 @@
+{
+  "appId": "APP_KFOOD",
+  "writerT1Template": "PTPL-CHEF-SHANE-ACTION-V1",
+  "t2Template": "T2_KFOOD_COMMERCE_CREATOR_V2",
+  "requiredOutputs": ["product_id","price","source","rights_status","availability","affiliate_status","content_seed","creator_angle","cta","freshness"],
+  "runtimeStatus": "BOUND_SYNC_X2_PENDING"
+}
