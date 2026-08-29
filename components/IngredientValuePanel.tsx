@@ -3,6 +3,7 @@ import { Product, Region } from '../types';
 import {
   createDefaultIngredientValueSnapshot,
   loadIngredientValueSnapshot,
+  normalizeIngredientValueSnapshot,
   saveIngredientValueSnapshot,
 } from '../services/ingredientValueService.mjs';
 
@@ -24,9 +25,8 @@ export const IngredientValuePanel: React.FC<IngredientValuePanelProps> = ({ prod
 
   const updateNumber = (field: 'purchaseQuantity' | 'measuredYield' | 'remainingQuantity', value: string) => {
     const nextInput = { ...snapshot, [field]: Number(value) };
-    const next = storageAvailable()
-      ? saveIngredientValueSnapshot(window.localStorage, nextInput)
-      : createDefaultIngredientValueSnapshot({ ...product, priceKr: snapshot.purchasePrice, priceUsd: snapshot.purchasePrice }, region);
+    const next = normalizeIngredientValueSnapshot(nextInput);
+    if (storageAvailable()) saveIngredientValueSnapshot(window.localStorage, next);
     setSnapshot(next);
   };
 
