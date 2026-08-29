@@ -55,10 +55,12 @@ The proxy should use approved AliExpress Affiliate/Portals API or deep-link faci
 
 Nearby-store discovery uses a Google Maps search link and browser-granted coordinates when available. It is discovery evidence only: a map result does not imply a verified price or delivery promise.
 
-## Review research loop
+## Review research loop — central bridge only
 
-The Coupang review Queens adapter remains separate from commerce ranking:
+KFood does **not** ship its own duplicate review extension. Product-review collection is delegated to the centrally managed `BRG_032 Central Shopping Research & Affiliate Bridge` in `8friend8ship-cloud/notebooklm-webapp-bridge`.
 
-`selected ingredient/product → bounded public-review collection → Drive JSON → Queens clustering → Seed qualification → recipe/value graph`
+`selected ingredient/product → BRG_032 bounded public-review collection → CentralAgent_ShoppingBridge JSON → Drive sync → Queens clustering/dedupe/noise filter → repeated-signal Seed qualification → recipe/value graph`
 
-Review sentiment may affect suitability/use-case scoring, but never overrides live price/delivery facts and never turns a single review into a product fact.
+The same central bridge contract is reused by eligible Interior and Travel commerce lanes so selector fixes, permissions, research safety rules and recommendation reasons do not drift between apps.
+
+Review sentiment may affect suitability/use-case scoring, but never overrides live price/delivery facts and never turns a single review into a product fact. KFood production promotion requires the central bridge and commerce-provider path to pass the same fixture twice.
