@@ -2,6 +2,7 @@ import React from 'react';
 import { Plus, ChevronRight, ShoppingCart, Youtube, Instagram, Clapperboard } from 'lucide-react';
 import { Tag, Region } from '../types';
 import { MarketplaceComparison } from './MarketplaceComparison';
+import { IngredientValuePanel } from './IngredientValuePanel';
 
 interface ProductTagProps {
   tag: Tag;
@@ -90,6 +91,10 @@ export const ProductTag: React.FC<ProductTagProps> = ({ tag, region, isOpen, onT
               <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed mb-4">
                 {tag.product.description}
               </p>
+
+              {tag.product.category === 'ingredient' && (
+                <IngredientValuePanel product={tag.product} region={region} />
+              )}
 
               <MarketplaceComparison product={tag.product} region={region} active={isOpen} />
 
