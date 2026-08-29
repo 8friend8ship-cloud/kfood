@@ -1,0 +1,26 @@
+name: Community Intake CI
+
+on:
+  push:
+    branches:
+      - agent/community-receipt-photo-intake
+  pull_request:
+    paths:
+      - 'components/UploadWizard.tsx'
+      - 'services/community*'
+      - 'tests/community*'
+      - 'types.ts'
+      - 'package.json'
+      - '.github/workflows/community-intake-ci.yml'
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm test
+      - run: npm run build
