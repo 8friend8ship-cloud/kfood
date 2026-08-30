@@ -2,6 +2,7 @@ const MAX_BODY_BYTES = 512 * 1024;
 const MAX_POSTS = 50;
 const MAX_TAGS_PER_POST = 5;
 const MAX_AGE_MS = 48 * 60 * 60 * 1000;
+const MAX_HEALTH_CLAIMS_PER_LAYER = 5;
 
 const SOURCE_HOSTS = new Set([
   'docs.google.com',
@@ -10,6 +11,15 @@ const SOURCE_HOSTS = new Set([
   'script.google.com',
   'script.googleusercontent.com',
   'sheets.googleapis.com',
+]);
+
+const HEALTH_SOURCE_HOSTS = new Set([
+  ...SOURCE_HOSTS,
+  'foodsafetykorea.go.kr',
+  'www.foodsafetykorea.go.kr',
+  'pubmed.ncbi.nlm.nih.gov',
+  'www.ncbi.nlm.nih.gov',
+  'pmc.ncbi.nlm.nih.gov',
 ]);
 
 const IMAGE_HOSTS = new Set([
@@ -29,6 +39,18 @@ const PRODUCT_HOSTS = new Set([
 ]);
 
 const CATEGORIES = new Set(['tool', 'ingredient', 'tableware', 'snack', 'sauce', 'kit', 'drink']);
+const HEALTH_LAYERS = Object.freeze(['NUTRITION', 'TRADITIONAL_USE', 'MODERN_EVIDENCE', 'SAFETY']);
+const HEALTH_STATUSES = new Set(['VERIFIED', 'PENDING', 'UNKNOWN']);
+const HEALTH_EVIDENCE_LEVELS = new Set([
+  'OFFICIAL_NUTRITION',
+  'TRADITIONAL_REFERENCE',
+  'SYSTEMATIC_REVIEW',
+  'CLINICAL_STUDY',
+  'OBSERVATIONAL',
+  'CASE_REPORT',
+  'SAFETY_ALERT',
+  'PENDING',
+]);
 
 const requiredString = (value, field, maxLength = 500) => {
   if (typeof value !== 'string' || value.trim() === '' || value.length > maxLength) {
@@ -52,12 +74,88 @@ const safeUrl = (value, field, hosts) => {
   return url.toString();
 };
 
-export const validateFeedSourceUrl = (value) => safeUrl(value, 'source_url', SOURCE_HOSTS);
+const optionalSafeUrl = (value, field, hosts) => {
+  if (value === undefined || value === null || value === '') return undefined;
+  return safeUrl(value, field, hosts);
+};
 
-const validateProduct = (value, path) => {
+const validPastIso = (value, field, now = Date.now()) => {
+  const text = requiredString(value, field, 80);
+  const parsed = Date.parse(text);
+  if (!Number.isFinite(parsed) || parsed > now + 5 * 60 * 1000) {
+    throw new Error(`INVALID_FEED_FIELD:${field}`);
+  }
+  return new Date(parsed).toISOString();
+};
+
+export const validateFeedSourceUrl = (value) => safeUrl(value, 'source_url', SOURCE_HOSTS);
+export const validateHealthSourceUrl = (value) => safeUrl(value, 'health_source_url', HEALTH_SOURCE_HOSTS);
+
+const validateHealthClaim = (value, path, expectedLayer, now) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error(`INVALID_FEED_FIELD:${path}`);
+  }
+  const layer = requiredString(value.layer, `${path}.layer`, 40);
+  if (layer !== expectedLayer) throw new Error(`INVALID_HEALTH_LAYER:${path}.layer`);
+
+  const status = requiredString(value.status, `${path}.status`, 20);
+  if (!HEALTH_STATUSES.has(status)) throw new Error(`INVALID_HEALTH_STATUS:${path}.status`);
+
+  const evidenceLevel = requiredString(value.evidenceLevel, `${path}.evidenceLevel`, 40);
+  if (!HEALTH_EVIDENCE_LEVELS.has(evidenceLevel)) {
+    throw new Error(`INVALID_HEALTH_EVIDENCE_LEVEL:${path}.evidenceLevel`);
+  }
+
+  const sourceUrl = optionalSafeUrl(value.sourceUrl, `${path}.sourceUrl`, HEALTH_SOURCE_HOSTS);
+  if (status === 'VERIFIED' && !sourceUrl) throw new Error(`HEALTH_SOURCE_REQUIRED:${path}.sourceUrl`);
+  if (status !== 'VERIFIED' && evidenceLevel !== 'PENDING') {
+    throw new Error(`HEALTH_PENDING_EVIDENCE_REQUIRED:${path}.evidenceLevel`);
+  }
+
+  return {
+    layer,
+    status,
+    evidenceLevel,
+    summary: requiredString(value.summary, `${path}.summary`, 700),
+    ...(sourceUrl ? { sourceUrl } : {}),
+    ...(value.sourceDate ? { sourceDate: validPastIso(value.sourceDate, `${path}.sourceDate`, now) } : {}),
+  };
+};
+
+const validateHealthLayer = (value, path, expectedLayer, now) => {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || value.length > MAX_HEALTH_CLAIMS_PER_LAYER) {
+    throw new Error(`INVALID_FEED_FIELD:${path}`);
+  }
+  return value.map((claim, index) => validateHealthClaim(claim, `${path}[${index}]`, expectedLayer, now));
+};
+
+const validateHealthProfile = (value, path, now) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`INVALID_FEED_FIELD:${path}`);
+  const nutrition = validateHealthLayer(value.nutrition, `${path}.nutrition`, 'NUTRITION', now);
+  const traditionalUse = validateHealthLayer(value.traditionalUse, `${path}.traditionalUse`, 'TRADITIONAL_USE', now);
+  const modernEvidence = validateHealthLayer(value.modernEvidence, `${path}.modernEvidence`, 'MODERN_EVIDENCE', now);
+  const safety = validateHealthLayer(value.safety, `${path}.safety`, 'SAFETY', now);
+  if (nutrition.length + traditionalUse.length + modernEvidence.length + safety.length === 0) {
+    throw new Error(`INVALID_FEED_FIELD:${path}.empty`);
+  }
+  return {
+    ingredientId: requiredString(value.ingredientId, `${path}.ingredientId`, 160),
+    reviewedAt: validPastIso(value.reviewedAt, `${path}.reviewedAt`, now),
+    nutrition,
+    traditionalUse,
+    modernEvidence,
+    safety,
+  };
+};
+
+const validateProduct = (value, path, now) => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`INVALID_FEED_FIELD:${path}`);
   const category = requiredString(value.category, `${path}.category`, 30);
   if (!CATEGORIES.has(category)) throw new Error(`INVALID_FEED_FIELD:${path}.category`);
+  if (value.healthProfile !== undefined && category !== 'ingredient') {
+    throw new Error(`INVALID_HEALTH_TARGET:${path}.healthProfile`);
+  }
 
   return {
     id: requiredString(value.id, `${path}.id`, 120),
@@ -80,10 +178,13 @@ const validateProduct = (value, path) => {
     ...(Array.isArray(value.productTags)
       ? { productTags: value.productTags.slice(0, 10).map((tag, index) => requiredString(tag, `${path}.productTags[${index}]`, 80)) }
       : {}),
+    ...(value.healthProfile !== undefined
+      ? { healthProfile: validateHealthProfile(value.healthProfile, `${path}.healthProfile`, now) }
+      : {}),
   };
 };
 
-const validatePost = (value, index, sourceId, updatedAtMs) => {
+const validatePost = (value, index, sourceId, updatedAtMs, now) => {
   const path = `posts[${index}]`;
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`INVALID_FEED_FIELD:${path}`);
   if (!Array.isArray(value.tags) || value.tags.length < 1 || value.tags.length > MAX_TAGS_PER_POST) {
@@ -109,7 +210,7 @@ const validatePost = (value, index, sourceId, updatedAtMs) => {
       id: requiredString(tag?.id, `${path}.tags[${tagIndex}].id`, 120),
       x: boundedNumber(tag?.x, `${path}.tags[${tagIndex}].x`, 0, 100),
       y: boundedNumber(tag?.y, `${path}.tags[${tagIndex}].y`, 0, 100),
-      product: validateProduct(tag?.product, `${path}.tags[${tagIndex}].product`),
+      product: validateProduct(tag?.product, `${path}.tags[${tagIndex}].product`, now),
     })),
     sourceId,
     sourceUpdatedAt: new Date(updatedAtMs).toISOString(),
@@ -127,7 +228,7 @@ export const validateFeedSnapshot = (value, now = Date.now()) => {
     throw new Error('INVALID_FEED_POST_COUNT');
   }
 
-  const posts = value.posts.map((post, index) => validatePost(post, index, sourceId, updatedAtMs));
+  const posts = value.posts.map((post, index) => validatePost(post, index, sourceId, updatedAtMs, now));
   if (new Set(posts.map((post) => post.id)).size !== posts.length) throw new Error('DUPLICATE_POST_ID');
 
   return {
@@ -148,6 +249,10 @@ export const readBoundedJsonResponse = async (response) => {
   return JSON.parse(body);
 };
 
-export const FEED_LIMITS = Object.freeze({ maxBodyBytes: MAX_BODY_BYTES, maxPosts: MAX_POSTS, maxTagsPerPost: MAX_TAGS_PER_POST, maxAgeMs: MAX_AGE_MS });
-
-
+export const FEED_LIMITS = Object.freeze({
+  maxBodyBytes: MAX_BODY_BYTES,
+  maxPosts: MAX_POSTS,
+  maxTagsPerPost: MAX_TAGS_PER_POST,
+  maxAgeMs: MAX_AGE_MS,
+  maxHealthClaimsPerLayer: MAX_HEALTH_CLAIMS_PER_LAYER,
+});
