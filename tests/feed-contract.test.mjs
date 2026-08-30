@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FEED_LIMITS, readBoundedJsonResponse, validateFeedSnapshot, validateFeedSourceUrl } from '../services/feedContract.mjs';
+import { FEED_LIMITS, readBoundedJsonResponse, validateFeedSnapshot, validateFeedSourceUrl, validateHealthSourceUrl } from '../services/feedContract.mjs';
 
 const NOW = Date.parse('2026-08-02T00:00:00+09:00');
 const product = {
@@ -23,10 +23,100 @@ const snapshot = {
   }],
 };
 
+const healthProfile = {
+  ingredientId: 'ING-CHICKEN-001',
+  reviewedAt: '2026-08-01T12:00:00.000Z',
+  nutrition: [{
+    layer: 'NUTRITION', status: 'VERIFIED', evidenceLevel: 'OFFICIAL_NUTRITION',
+    summary: 'Official nutrition values are shown as nutrition data, not as treatment claims.',
+    sourceUrl: 'https://www.foodsafetykorea.go.kr/portal/healthyfoodlife/foodnutrient/searchNutrient.do',
+    sourceDate: '2026-08-01T00:00:00.000Z',
+  }],
+  traditionalUse: [{
+    layer: 'TRADITIONAL_USE', status: 'VERIFIED', evidenceLevel: 'TRADITIONAL_REFERENCE',
+    summary: 'Traditional-use information remains labeled as traditional use.',
+    sourceUrl: 'https://docs.google.com/document/d/traditional-source',
+  }],
+  modernEvidence: [{
+    layer: 'MODERN_EVIDENCE', status: 'PENDING', evidenceLevel: 'PENDING',
+    summary: 'Modern clinical benefit is pending evidence review.',
+  }],
+  safety: [{
+    layer: 'SAFETY', status: 'VERIFIED', evidenceLevel: 'SAFETY_ALERT',
+    summary: 'Safety signals are displayed before benefits when present.',
+    sourceUrl: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3412241/',
+  }],
+};
+
+const ingredientProduct = {
+  ...product,
+  id: 'ingredient-1',
+  nameEn: 'Chicken',
+  nameKr: '닭고기',
+  category: 'ingredient',
+  healthProfile,
+};
+
+const withProduct = (nextProduct) => ({
+  ...snapshot,
+  posts: [{
+    ...snapshot.posts[0],
+    tags: [{ ...snapshot.posts[0].tags[0], product: nextProduct }],
+  }],
+});
+
 test('accepts one fresh audited post and attaches lineage', () => {
   const result = validateFeedSnapshot(snapshot, NOW);
   assert.equal(result.posts.length, 1);
   assert.equal(result.posts[0].sourceId, 'QUEENS_KFOOD_001');
+});
+
+test('accepts four-layer ingredient health seed and preserves separation', () => {
+  const result = validateFeedSnapshot(withProduct(ingredientProduct), NOW);
+  const profile = result.posts[0].tags[0].product.healthProfile;
+  assert.equal(profile.nutrition[0].layer, 'NUTRITION');
+  assert.equal(profile.traditionalUse[0].layer, 'TRADITIONAL_USE');
+  assert.equal(profile.modernEvidence[0].status, 'PENDING');
+  assert.equal(profile.safety[0].evidenceLevel, 'SAFETY_ALERT');
+  assert.equal(FEED_LIMITS.maxHealthClaimsPerLayer, 5);
+});
+
+test('rejects health data on non-ingredient products', () => {
+  assert.throws(() => validateFeedSnapshot(withProduct({ ...product, healthProfile }), NOW), /INVALID_HEALTH_TARGET/);
+});
+
+test('rejects layer promotion, unsafe health sources, and unverified non-pending evidence', () => {
+  const promoted = {
+    ...ingredientProduct,
+    healthProfile: {
+      ...healthProfile,
+      traditionalUse: [{ ...healthProfile.traditionalUse[0], layer: 'MODERN_EVIDENCE' }],
+    },
+  };
+  assert.throws(() => validateFeedSnapshot(withProduct(promoted), NOW), /INVALID_HEALTH_LAYER/);
+
+  const unsafe = {
+    ...ingredientProduct,
+    healthProfile: {
+      ...healthProfile,
+      safety: [{ ...healthProfile.safety[0], sourceUrl: 'https://evil.example/claim' }],
+    },
+  };
+  assert.throws(() => validateFeedSnapshot(withProduct(unsafe), NOW), /UNSAFE_FEED_URL/);
+
+  const unsupported = {
+    ...ingredientProduct,
+    healthProfile: {
+      ...healthProfile,
+      modernEvidence: [{ ...healthProfile.modernEvidence[0], status: 'UNKNOWN', evidenceLevel: 'CLINICAL_STUDY' }],
+    },
+  };
+  assert.throws(() => validateFeedSnapshot(withProduct(unsupported), NOW), /HEALTH_PENDING_EVIDENCE_REQUIRED/);
+});
+
+test('accepts approved health evidence source hosts', () => {
+  assert.match(validateHealthSourceUrl('https://pubmed.ncbi.nlm.nih.gov/12345678/'), /^https:\/\/pubmed\.ncbi\.nlm\.nih\.gov\//);
+  assert.match(validateHealthSourceUrl('https://www.foodsafetykorea.go.kr/portal/healthyfoodlife/foodnutrient/searchNutrient.do'), /^https:\/\/www\.foodsafetykorea\.go\.kr\//);
 });
 
 test('rejects stale, future and duplicate post data', () => {
