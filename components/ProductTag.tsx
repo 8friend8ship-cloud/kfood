@@ -3,6 +3,7 @@ import { Plus, ChevronRight, ShoppingCart, Youtube, Instagram, Clapperboard } fr
 import { Tag, Region } from '../types';
 import { MarketplaceComparison } from './MarketplaceComparison';
 import { IngredientValuePanel } from './IngredientValuePanel';
+import { IngredientHealthPanel } from './IngredientHealthPanel';
 
 interface ProductTagProps {
   tag: Tag;
@@ -93,7 +94,10 @@ export const ProductTag: React.FC<ProductTagProps> = ({ tag, region, isOpen, onT
               </p>
 
               {tag.product.category === 'ingredient' && (
-                <IngredientValuePanel product={tag.product} region={region} />
+                <>
+                  <IngredientValuePanel product={tag.product} region={region} />
+                  <IngredientHealthPanel product={tag.product} />
+                </>
               )}
 
               <MarketplaceComparison product={tag.product} region={region} active={isOpen} />
