@@ -15,6 +15,10 @@ jobs:
           node-version: '20'
           cache: npm
       - run: npm install
+      - name: Recipe case engine typecheck
+        run: npx tsc services/recipeCaseEngine.ts --target ES2022 --module NodeNext --moduleResolution NodeNext --skipLibCheck --noEmit false --outDir .tmp-case-test
+      - name: Recipe case engine forced fixture x2
+        run: node scripts/recipe-case-engine-check.mjs
       - run: npm run build
       - name: Browser API policy check
         shell: bash
