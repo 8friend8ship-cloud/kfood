@@ -1,0 +1,15 @@
+{
+  "version": "FRONT_REQUIREMENT_REVERSE_FACTORY_V1_20260823",
+  "appIds": ["APP_KFOOD"],
+  "controlTargetId": "FPC_KFOOD_20260823",
+  "cycleMinutes": 10,
+  "dailyTargets": {"queens": 800, "seed": 120, "t1": 60, "t2": 30, "assets": 100},
+  "apiAbWindowsKst": [9, 13, 17, 21],
+  "reverseRequirement": ["dish", "recipe", "ingredients", "tools", "restaurant", "place", "price", "availability", "trend", "commerce"],
+  "pipeline": ["FRONT_REQUIREMENT_REVERSE", "QUEENS_FOOD_TREND_COMMERCE", "SEED_RECIPE_MENU_PRODUCT_PLACE", "T1_RECIPE_PLACE_PACKAGE", "T2_PORTION_TASTE_REGION_DELTA", "FRONT_READBACK", "PLATFORM_PRODUCT_PLACE_POINTER", "CENTRAL_REINGEST"],
+  "qualityGate": {"ingredientQuantityStepFields": 1.0, "sourceFreshnessStatus": 1.0, "runtimeReadbackCount": 2},
+  "apiPromotionRule": {"fastTrendStockPriceGapAllowed": true, "qualityGainPoints": 8, "coverageGain": 0.15, "writeBackWinningPatterns": true},
+  "storage": {"recipeProductPlaceT2": "COMPACT_JSON", "media": "URL_ID_HASH_RIGHTS", "longGuide": "DRIVE_OR_BLOGGER_CANONICAL_URL"},
+  "physicalTriggerPolicy": "REUSE_EXISTING_APP_KFOOD_FACTORY_TRIGGER_NO_DUPLICATE",
+  "approvalBoundary": ["NEW_OAUTH", "NEW_PAID_API_OR_SERVICE", "PUBLIC_PRODUCTION_OR_PUBLISH", "PAYMENT", "DESTRUCTIVE_DELETE"]
+}
