@@ -2,16 +2,20 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { LiveTrendBanner } from './components/LiveTrendBanner';
+import { getQueensTemplateRuntimeReadback } from './services/queensTemplateRuntime';
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
+const params = new URLSearchParams(window.location.search);
+if (params.get('qta_runtime') === '1') {
+  document.body.innerText = JSON.stringify(getQueensTemplateRuntimeReadback());
+} else {
+  const rootElement = document.getElementById('root');
+  if (!rootElement) throw new Error('Could not find root element to mount to');
+
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <LiveTrendBanner />
+      <App />
+    </React.StrictMode>
+  );
 }
-
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <LiveTrendBanner />
-    <App />
-  </React.StrictMode>
-);
