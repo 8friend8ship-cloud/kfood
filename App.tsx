@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Navbar } from './components/Navbar';
+import { SionHousePilot } from './components/SionHousePilot';
 import { PostDetail } from './components/PostDetail';
 import { UploadWizard } from './components/UploadWizard';
 import { CreatorHub } from './components/CreatorHub';
@@ -205,6 +206,8 @@ export default function App() {
             {region === Region.GLOBAL ? 'Shop the tools you saw in your favorite K-Drama.' : '전 세계에 한국의 식문화를 소개합니다.'}
           </p>
         </div>
+
+        <SionHousePilot globalView={region === Region.GLOBAL} />
 
         <section className="mb-8 rounded-2xl border border-orange-100 bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between gap-3 mb-3">
